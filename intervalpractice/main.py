@@ -1,10 +1,11 @@
 #!usr/bin/env python3
+from application_update import *
 from math import acos, degrees, hypot
-from sys import platform
+from sys import platform, exit
 from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import Button, Checkbutton, LabelFrame, OptionMenu, Spinbox, Style
-from application_update import *
+import os
 import random
 import turtle
 
@@ -191,13 +192,13 @@ def settings():
 if __name__ == "__main__":
 
     _VERSION_DATA = {
-        "version": "v1.1"
+        "version": "v1.2"
     }
 
     curr_version = retrieve_current_version('intervalpractice')
     if _VERSION_DATA['version'] != curr_version and prompt_update():
-        update_application('intervalpractice')
-
+        update_application('intervalpractice', os.path.basename(__file__))
+        exit(0)
 
     WIDTH, HEIGHT = (1200, 500)
     XPAD = 50

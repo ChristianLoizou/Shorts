@@ -1,10 +1,11 @@
 from bs4 import BeautifulSoup
+from os import remove as deletefile
 from tkinter import *
 from tkinter import messagebox
 import requests
 import urllib
 
-UPDATE_URL = "https://github.com/ChristianLoizou/Shorts/blob/origin/VERSION_DATA"
+UPDATE_URL = "https://github.com/ChristianLoizou/Shorts/blob/master/VERSION_DATA"
 
 def retrieve_current_version(application_name):
     source = requests.get(UPDATE_URL).text
@@ -21,12 +22,15 @@ def prompt_update():
     hidden.destroy()
     return ans
 
-def update_application(application):
+def update_application(application, filename):
     try:
-        LATEST_RELEASE_URL = f"https://raw.githubusercontent.com/ChristianLoizou/Shorts/origin/{application}/latest.exe"
+        LATEST_RELEASE_URL = f"https://raw.githubusercontent.com/ChristianLoizou/Shorts/master/{application}/latest.exe"
+        DOWNLOAD_NAME = f"updated-{filename}"
         req = requests.get(LATEST_RELEASE_URL, allow_redirects=True)
-        with open("updated.exe", 'wb') as f:
+        with open(DOWNLOAD_NAME, 'wb') as f:
             f.write(req.content)
+        deletefile(filename)
+
     except Exception as e:
         hidden = Tk()
         hidden.withdraw()
