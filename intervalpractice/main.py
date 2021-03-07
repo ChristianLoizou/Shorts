@@ -196,6 +196,7 @@ if __name__ == "__main__":
     }
 
     curr_version = retrieve_current_version('intervalpractice')
+    print(curr_version)
     if _VERSION_DATA['version'] != curr_version and prompt_update():
         update_application('intervalpractice', os.path.basename(__file__))
         exit(0)
