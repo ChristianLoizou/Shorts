@@ -22,14 +22,13 @@ def prompt_update():
     hidden.destroy()
     return ans
 
-def update_application(application, filename):
+def update_application(application, new_version, filename):
     try:
         LATEST_RELEASE_URL = f"https://raw.githubusercontent.com/ChristianLoizou/Shorts/master/{application}/latest.exe"
-        DOWNLOAD_NAME = f"updated-{''.join(filename.split('.')[:-1])}.exe"
+        DOWNLOAD_NAME = f"intervalpractice-{new_version}.exe"
         req = requests.get(LATEST_RELEASE_URL, allow_redirects=True)
         with open(DOWNLOAD_NAME, 'wb') as f:
             f.write(req.content)
-        deletefile(filename)
 
     except Exception as e:
         hidden = Tk()
@@ -40,6 +39,6 @@ def update_application(application, filename):
 def execute_update(application_name, file_version, file_name):
     curr_version = retrieve_current_version(application_name)
     if file_version != curr_version and prompt_update():
-        update_application(application_name, file_name)
+        update_application(application_name, curr_version, file_name)
         return True
     return False

@@ -192,7 +192,7 @@ def settings():
 if __name__ == "__main__":
 
     _VERSION_DATA = {
-        "version": "v1.4.4"
+        "version": "v1.4.5"
     }
 
     if execute_update('intervalpractice', _VERSION_DATA['version'], os.path.basename(__file__)):
