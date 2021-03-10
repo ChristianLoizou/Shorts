@@ -41,4 +41,5 @@ def execute_update(application_name, file_version, file_name):
     curr_version = retrieve_current_version(application_name)
     if file_version != curr_version and prompt_update():
         update_application(application_name, file_name)
-        exit(0)
+        return True
+    return False
