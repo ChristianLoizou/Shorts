@@ -192,10 +192,10 @@ def settings():
 if __name__ == "__main__":
 
     _VERSION_DATA = {
-        "version": "v1.4.2"
+        "version": "v1.4.3"
     }
 
-    execute_update('intervalpractice', _VERSION_DATA['version'])
+    execute_update('intervalpractice', _VERSION_DATA['version'], os.path.basename(__file__))
 
     WIDTH, HEIGHT = (1200, 500)
     XPAD = 50
