@@ -13,7 +13,7 @@ curr_version = input(f"Last version number was {last_version!r}\nEnter new versi
 with open("VERSION_DATA", 'w') as version_data_file:
     for l in version_data.items():
         if PROJECT_NAME == l[0]:
-            version_data_file.write(f"{PROJECT_NAME}:{curr_version}\n")
+            version_data_file.write(f"{PROJECT_NAME}:v{curr_version}\n")
         else:
             version_data_file.write(':'.join(l) + "\n")
 
