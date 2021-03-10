@@ -192,14 +192,10 @@ def settings():
 if __name__ == "__main__":
 
     _VERSION_DATA = {
-        "version": "v1.2"
+        "version": "v1.4"
     }
 
-    curr_version = retrieve_current_version('intervalpractice')
-    print(curr_version)
-    if _VERSION_DATA['version'] != curr_version and prompt_update():
-        update_application('intervalpractice', os.path.basename(__file__))
-        exit(0)
+    execute_update('intervalpractice', _VERSION_DATA['version'])
 
     WIDTH, HEIGHT = (1200, 500)
     XPAD = 50

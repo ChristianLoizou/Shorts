@@ -36,3 +36,9 @@ def update_application(application, filename):
         hidden.withdraw()
         ans = messagebox.showerror("Update failed", f"Could not install update. Please install the latest version from GitHub manually at {LATEST_RELEASE_URL!r}")
         hidden.destroy()
+
+def execute_update(application_name, file_version):
+    curr_version = retrieve_current_version('intervalpractice')
+    if file_version != curr_version and prompt_update():
+        update_application('intervalpractice', os.path.basename(__file__))
+        exit(0)
