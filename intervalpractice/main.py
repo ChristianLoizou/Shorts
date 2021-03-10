@@ -1,5 +1,5 @@
 #!usr/bin/env python3
-from application_update import *
+from application_update import execute_update
 from math import acos, degrees, hypot
 from sys import platform, exit
 from tkinter import *
@@ -192,7 +192,7 @@ def settings():
 if __name__ == "__main__":
 
     _VERSION_DATA = {
-        "version": "v1.4"
+        "version": "v1.4.2"
     }
 
     execute_update('intervalpractice', _VERSION_DATA['version'])
