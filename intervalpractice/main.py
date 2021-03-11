@@ -203,7 +203,7 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.4.6"
+    __version__ = "v1.4.7"
 
     if execute_update('intervalpractice', __version__, os.path.basename(__file__)):
         exit(0)
