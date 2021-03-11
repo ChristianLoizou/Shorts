@@ -63,7 +63,7 @@ class Application:
             filetypes=[
                 ("XML files", '*.xml'),
                 ("Uncompressed MusicXML files", '*.musicxml')
-                ], 
+                ],
             title="Load an XML file")
         self.root.title(f"Parallel Checker - {fn}")
         results = execute_parallel_check(fn)
