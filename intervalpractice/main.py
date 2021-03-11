@@ -48,7 +48,6 @@ def generate_exercise():
         return
     num_intervals = int(EXERCISE_LENGTH.get())
     intervals = list()
-    # intervals = random.choices(activated_intervals, k=num_intervals)
     for i in range(num_intervals):
         c = random.choice(activated_intervals)
         try:
@@ -68,6 +67,7 @@ def setup_window():
     root = Tk()
     root.title("Interval Practice")
     root.resizable(False, False)
+    root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
     root.after(500, root.focus_force)
 
     canvas = Canvas(root, width=WIDTH, height=HEIGHT)

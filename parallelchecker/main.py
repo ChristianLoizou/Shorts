@@ -17,14 +17,15 @@ class Application:
         self.root.title("Parallel Checker")
         self.root.geometry(f"{width}x{height}")
         self.root.resizable(False, False)
-        self.version = "v1.2"
+        self.root.tk.call('wm', 'iconphoto', self.root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
+        self.version = "v1.3"
         self.setup_window()
     
     def setup_window(self):
         self.mainframe = Frame(self.root, width=self.width, height=self.height)
         self.output_text_variable = StringVar(value='Open a MusicXML file to check it for parallels!')
         out_lbl = Label(self.mainframe, textvariable=self.output_text_variable, width=self.width/5)
-        load_btn = Button(self.mainframe, text="Load .musicxml file", command=self.load_file, width=self.width/5)
+        load_btn = Button(self.mainframe, text="Load XML/MusicXML file", command=self.load_file, width=self.width/5)
         sett_btn = Button(self.mainframe, text="Options", command=self.options_menu, width=self.width/5)
 
         out_lbl.grid(row=0, column=0, columnspan=3, sticky="nsew")
@@ -58,7 +59,13 @@ class Application:
         popup.mainloop()
     
     def load_file(self, _=None):
-        fn = openfilename(filetypes=[("Uncompressed MusicXML files", '*.musicxml')], title="Load an Uncompressed MusicXML file")
+        fn = openfilename(
+            filetypes=[
+                ("XML files", '*.xml'),
+                ("Uncompressed MusicXML files", '*.musicxml')
+                ], 
+            title="Load an XML file")
+        self.root.title(f"Parallel Checker - {fn}")
         results = execute_parallel_check(fn)
         results = filter(lambda t: interval_variables[interval_names.index(convert_interval_to_name(t[0]).replace("Compound ", ''))].get()==1, results)
         lines = [

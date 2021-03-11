@@ -5,6 +5,7 @@ from random import shuffle
 from sys import argv
 from tkinter import (Entry, Frame, Label, StringVar, Tk, Toplevel, filedialog,
                      font)
+from tkinter import *
 from tkinter.messagebox import showerror
 from tkinter.ttk import Button
 
@@ -198,9 +199,10 @@ if __name__ == "__main__":
     root = Tk()
     given = argv[1:] if len(argv) > 1 else None
     FONT = "Verdana" if "Verdana" in font.families() else None
-    BACKGROUND = "#5562a3"
+    BACKGROUND = "#eeeeee"
     PITCHES = ["A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"]
     root.title("12-tone matrix generator")
     root.resizable(False, False)
+    root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{sep}icon.png'))
     refresh(given)
     root.mainloop()
