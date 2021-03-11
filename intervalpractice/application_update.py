@@ -25,7 +25,7 @@ def prompt_update():
 def update_application(application, new_version, filename):
     try:
         LATEST_RELEASE_URL = f"https://raw.githubusercontent.com/ChristianLoizou/Shorts/master/{application}/latest.exe"
-        DOWNLOAD_NAME = f"intervalpractice-{new_version}.exe"
+        DOWNLOAD_NAME = f"{application}-{new_version}.exe"
         req = requests.get(LATEST_RELEASE_URL, allow_redirects=True)
         with open(DOWNLOAD_NAME, 'wb') as f:
             f.write(req.content)
