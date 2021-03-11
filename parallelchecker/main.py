@@ -1,10 +1,14 @@
-import sys
-import xml.etree.ElementTree as ElementTree
-
+#!usr/bin/env python3
+from application_update import execute_update
 from itertools import combinations
+from sys import platform, exit
 from tkinter import *
 from tkinter.filedialog import askopenfilename as openfilename
 from tkinter.ttk import Button, Checkbutton, Frame, Label, LabelFrame, Style
+
+import os, sys
+import xml.etree.ElementTree as ElementTree
+
 
 
 
@@ -15,7 +19,7 @@ class Application:
         self.root.title("Parallel Checker")
         self.root.geometry(f"{width}x{height}")
         self.root.resizable(False, False)
-        self.version = 0.1
+        self.version = "1.0"
         self.setup_window()
     
     def setup_window(self):
@@ -33,7 +37,7 @@ class Application:
     def run(self):
         self.root.mainloop()
     
-    def options_menu(self, width=250, height=450):
+    def options_menu(self, width=250, height=425):
         settings_styles = Style()
         settings_styles.configure("SettingsLabelframe.TLabelframe.Label", font=("Verdana", 15, "normal"))
         settings_styles.configure("SettingsLabelframe.TLabelframe.Label", foreground='black')
@@ -202,6 +206,10 @@ def all_intervals():
 
 if __name__ == "__main__":
     application = Application()
+
+    if execute_update('parallelchecker', application.version, os.path.basename(__file__)):
+        exit(0)
+
     interval_names = [
         "Perfect Unison", "Minor 2nd",
         "Major 2nd", "Minor 3rd",

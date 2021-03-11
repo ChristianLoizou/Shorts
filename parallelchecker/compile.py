@@ -1,7 +1,7 @@
 from shutil import copyfile as copy, rmtree
 from os import chdir, listdir, remove, system
 
-PROJECT_NAME = "intervalpractice"
+PROJECT_NAME = "parallelchecker"
 
 chdir('..')
 with open("VERSION_DATA", 'r') as version_data_file:
