@@ -1,15 +1,13 @@
 #!usr/bin/env python3
 from application_update import execute_update
 from itertools import combinations
-from sys import platform, exit
+from sys import exit
 from tkinter import *
 from tkinter.filedialog import askopenfilename as openfilename
 from tkinter.ttk import Button, Checkbutton, Frame, Label, LabelFrame, Style
 
 import os, sys
 import xml.etree.ElementTree as ElementTree
-
-
 
 
 class Application:
@@ -19,7 +17,7 @@ class Application:
         self.root.title("Parallel Checker")
         self.root.geometry(f"{width}x{height}")
         self.root.resizable(False, False)
-        self.version = "1.0"
+        self.version = "v1.1"
         self.setup_window()
     
     def setup_window(self):
