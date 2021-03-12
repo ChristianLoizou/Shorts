@@ -1,19 +1,21 @@
 #!usr/bin/env python3
-from application_update import execute_update
+import os
+import sys
+import xml.etree.ElementTree as ElementTree
 from itertools import combinations
 from sys import exit
 from tkinter import *
 from tkinter.filedialog import askopenfilename as openfilename
 from tkinter.ttk import Button, Checkbutton, Frame, Label, LabelFrame, Style
 
-import os, sys
-import xml.etree.ElementTree as ElementTree
+from application_update import execute_update
 
 
 class Application:
-    def __init__(self, width=500, height=500):
+    def __init__(self, width=700, height=700):
         self.width, self.height = width, height
         self.root = Tk()
+        self.root.config(background=BACKGROUND_COL)
         self.root.title("Parallel Checker")
         self.root.geometry(f"{width}x{height}")
         self.root.resizable(False, False)
@@ -36,7 +38,7 @@ class Application:
     def run(self):
         self.root.mainloop()
     
-    def options_menu(self, width=250, height=425):
+    def options_menu(self):
         settings_styles = Style()
         settings_styles.configure("SettingsLabelframe.TLabelframe.Label", font=("Verdana", 15, "normal"))
         settings_styles.configure("SettingsLabelframe.TLabelframe.Label", foreground='black')
@@ -44,17 +46,28 @@ class Application:
         popup = Toplevel(self.root)
         popup.title("Options")
         popup.resizable(False, False)
-        popup.geometry(f"{width}x{height}")
-        mainframe = Frame(popup, width=width, height=height)
+        mainframe = Frame(popup)
         int_frame = LabelFrame(mainframe, text="Parallels to detect", style="SettingsLabelframe.TLabelframe")
-        note_lbl = Label(mainframe, text="Note: these will also detect compound\nversions of themselves \n(ie. Compound Perfect 5th)")
+        other_frame = LabelFrame(mainframe, text="Other options", style="SettingsLabelframe.TLabelframe")
+        # int_frame options
+        Message(
+            int_frame,
+            text="Note: these will also detect compound versions of themselves (ie. Compound Perfect 5th)",
+            background=BACKGROUND_COL).pack(anchor='w', padx=15, pady=15)
         for i, i_n in enumerate(interval_names):
             cb = Checkbutton(int_frame, text=i_n, variable=interval_variables[i])
-            cb.pack(anchor='w')
-        all_btn = Button(int_frame, text="Toggle all", command=all_intervals)
-        all_btn.pack()
-        int_frame.pack(padx=15, pady=15)
-        note_lbl.pack(pady=5)
+            cb.pack(anchor='w', padx=15)
+        Button(int_frame, text="Toggle all", command=all_intervals).pack()
+        # other_frame options
+        Checkbutton(other_frame, text="Reduce data", variable=toggle_reduce_data).pack(anchor='w', padx=15)
+        Message(other_frame,
+            text="Reducing data will remove all trailing whitespace at the end of a file. " + \
+                "Deselect this if there is a point of silence (where all parts are at rest) in your chorale",
+            background=BACKGROUND_COL).pack()
+
+        # display all
+        int_frame.grid(row=0, column=0, ipadx=15, ipady=15, padx=15, pady=15, sticky="nsew")
+        other_frame.grid(row=0, column=1, ipadx=15, ipady=15, padx=15, pady=15, sticky="nsew")        
         mainframe.pack()
         popup.mainloop()
     
@@ -69,11 +82,11 @@ class Application:
         results = execute_parallel_check(fn)
         results = filter(lambda t: interval_variables[interval_names.index(convert_interval_to_name(t[0]).replace("Compound ", ''))].get()==1, results)
         lines = [
-            f"Parallel {convert_interval_to_name(i)} detected in bar {b[1:]} between {' and '.join([part_instruments[p_] for p_ in p])}" 
+            f"Parallel {convert_interval_to_name(i)} detected in bar {b} between {' and '.join([part_instruments[p_] for p_ in p])}" 
             for (i, b, p) in results
         ]
         if not lines:
-            lines = ['No matching parallels found!']
+            lines = ['No matching parallels found! Did you forget to select an interval in the options menu?']
         self.output_text_variable.set('\n'.join(lines))
         return
 
@@ -174,48 +187,59 @@ def convert_to_smallest_note_value(data):
                         Note(pitch=pitch, duration=1,
                             rest=pitch is None, step=note.step,
                             octave=note.octave, accidental=note.accidental,
-                            measure=barnum
+                            measure=barnum, position_in_note=k,
+                            full_note_duration=note.duration-1
                         )
                     )
     return new_data
 
-
-
 def check_for_parallels(data):
     try:
+        len_set = set(map(len, data.values()))
+        if len(len_set) != 1:
+            raise CustomExceptionTypes.InequalPartLengths("Parts are not all the same length")
+        n_beats = len_set.pop()
         results = list()
-        intervals = dict()
-        n_parts = len(data)
-        length_set = set([len(data[k]) for k in data])
-        if len(length_set) != 1:
-            raise CustomExceptionTypes.InequalPartLengths("Part lengths must be equal")
-        length = length_set.pop()
+        part_combis = list(combinations(data.keys(), 2))
+        last_intervals = [(a, b, a.interval(b)) for (a, b) in [(data[i][0], data[j][0]) for (i, j) in part_combis]]
+        for beat in range(1, 33):
+            new_intervals = [(a, b, a.interval(b)) for (a, b) in [(data[i][beat], data[j][beat]) for (i, j) in part_combis]]
+            for pnum in range(len(last_intervals)):
+                lna, lnb, li = last_intervals[pnum]
+                nna, nnb, ni = new_intervals[pnum]
+                if (lna != nna and lnb != nnb and li == ni) and \
+                    lna.full_note_duration == lna.position_in_note and \
+                    lnb.full_note_duration == lnb.position_in_note and \
+                    nna.position_in_note == nnb.position_in_note == 0:
+                    if lna.measure == nna.measure:
+                        b = str(int(lna.measure[1:]) + 1)
+                    else:
+                        b = f"{int(lna.measure[1:])+1}-{int(nna.measure[1:])+1}"
+                    results.append((li, b, part_combis[pnum]))
+            last_intervals = new_intervals
 
-        part_combinations = list(combinations(list(data.keys()), 2))
-        for beat in range(length):
-            part_intervals = list()
-            for (p1, p2) in part_combinations:
-                a, b = data[p1][beat], data[p2][beat]
-                part_intervals.append((a, b, a.interval(b)))
-            if any([x[2] for x in part_intervals]):
-                intervals[beat] = part_intervals
-                if beat > 0:
-                    last = intervals[beat - 1]
-                    for i in range(len(part_combinations)):
-                        if part_intervals[i][0] != last[i][0] and part_intervals[i][1] != last[i][1] and part_intervals[i][2] == last[i][2]:
-                            results.append((part_intervals[i][2], last[i][0].measure, tuple(part_combinations[i])))                            
         return results
     except CustomExceptionTypes.InequalPartLengths as e:
         print(f"{type(e)}: {e}")
 
+def reduce_data(data):
+    cbeat, parts = int(), list(data.keys())
+    while any([data[p][cbeat].rest == False for p in parts]):
+        cbeat += 1
+    return {k: v[:cbeat] for (k, v) in data.items()}
+
 def convert_interval_to_name(interval):
     if interval > len(interval_names):
-        return f"Compound {interval_names[interval%12]}"
+        i = interval % 12
+        if i == 0: i = -1
+        return f"Compound {interval_names[i]}"
     return interval_names[interval]
 
 def execute_parallel_check(file_path, _=None):
     data = get_data_dict(file_path)
     data = convert_to_smallest_note_value(data)
+    if toggle_reduce_data.get():
+        data = reduce_data(data)
     results = check_for_parallels(data)
     return results
 
@@ -226,6 +250,7 @@ def all_intervals():
     toggle = int(not toggle)
 
 if __name__ == "__main__":
+    BACKGROUND_COL = "#eeeeee"
     application = Application()
 
     if execute_update('parallelchecker', application.version, os.path.basename(__file__)):
@@ -239,7 +264,9 @@ if __name__ == "__main__":
         "Minor 6th", "Major 6th", "Minor 7th",
         "Major 7th", "Perfect Octave"
     ]
+
     toggle = 0
+    toggle_reduce_data = IntVar(value=0)
     interval_variables = [IntVar(value=1) for _ in range(len(interval_names))]
     note_names = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
     pitches = [f"{note}{octave}" for octave in range(-1, 10) for note in note_names][:-4] # C-1 - G9
