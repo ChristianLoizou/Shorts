@@ -20,7 +20,7 @@ class Application:
         self.root.geometry(f"{width}x{height}")
         self.root.resizable(False, False)
         self.root.tk.call('wm', 'iconphoto', self.root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
-        self.version = "v1.3"
+        self.version = "v1.4"
         self.setup_window()
     
     def setup_window(self):
