@@ -1,14 +1,19 @@
-from shutil import copyfile as copy, rmtree
 from os import chdir, listdir, remove, system
+from shutil import copyfile as copy
+from shutil import rmtree
 
 PROJECT_NAME = "12toneapp"
 
+print("Have you updated the version number in 'main.py'?")
+
 chdir('..')
 with open("VERSION_DATA", 'r') as version_data_file:
-    version_data = dict(map(lambda l: l.replace("\n", '').split(":"), version_data_file.readlines()))
+    version_data = dict(map(lambda l: l.replace(
+        "\n", '').split(":"), version_data_file.readlines()))
 
 last_version = version_data[PROJECT_NAME]
-curr_version = input(f"Last version number was {last_version!r}\nEnter new version number: ").replace('v', '')
+curr_version = input(
+    f"Last version number was {last_version!r}\nEnter new version number: ").replace('v', '')
 
 with open("VERSION_DATA", 'w') as version_data_file:
     for l in version_data.items():
