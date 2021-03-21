@@ -285,7 +285,7 @@ if __name__ == "__main__":
     given = argv[1:] if len(argv) > 1 else None
     RESET = False
     FONT = "Verdana" if "Verdana" in font.families() else None
-    BACKGROUND = "#eeeeee"
+    BACKGROUND = "#eeeeee" if platform == "win32" else None
     PITCHES = ["A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"]
     FREQUENCY_DICT = dict(
         zip(PITCHES, [int(220*(2**(i/12))) for i in range(len(PITCHES))]))
