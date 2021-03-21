@@ -2,3 +2,5 @@
 **/.vscode
 *.mscz
 **/.mscbackup/*
+*/.DS_Store
+.DS_Store
