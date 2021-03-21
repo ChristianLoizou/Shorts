@@ -6,7 +6,7 @@ from sys import argv, platform
 from tkinter import *
 from tkinter import (Entry, Frame, Label, StringVar, Tk, Toplevel, filedialog,
                      font)
-from tkinter.messagebox import showerror
+from tkinter.messagebox import showerror, showinfo
 from tkinter.ttk import Button, LabelFrame, Style
 
 import numpy as np
@@ -240,18 +240,21 @@ def save_matrix(matrix: list):
 
 
 def settings():
-    settings_styles = Style()
-    settings_styles.configure(
-        "SettingsLabelframe.TLabelframe.Label", font=("Verdana", 18, "normal"))
-    settings_styles.configure(
-        "SettingsLabelframe.TLabelframe.Label", foreground='black')
+    # settings_styles = Style()
+    # settings_styles.configure(
+    #     "SettingsLabelframe.TLabelframe.Label", font=("Verdana", 18, "normal"))
+    # settings_styles.configure(
+    #     "SettingsLabelframe.TLabelframe.Label", foreground='black')
 
-    popup = Toplevel()
-    popup.title("Settings")
-    popup.transient(root)
-    popup.resizable(False, False)
+    # popup = Toplevel()
+    # popup.title("Settings")
+    # popup.transient(root)
+    # popup.resizable(False, False)
 
-    popup.mainloop()
+    # popup.mainloop()
+
+    showinfo("Feature not yet available",
+             "The 'Options' menu has not yet been implemented. Please come back in a future version to access options")
 
 
 def refresh(prime: list = None):
