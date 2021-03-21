@@ -4,7 +4,7 @@ from shutil import rmtree
 
 PROJECT_NAME = "parallelchecker"
 
-print("Have you updated the version number in 'main.py'?")
+print("\nHave you updated the version number in 'main.py'?\n\n")
 
 chdir('..')
 with open("VERSION_DATA", 'r') as version_data_file:
