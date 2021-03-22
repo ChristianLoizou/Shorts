@@ -51,7 +51,7 @@ def generate_exercise():
     for i in range(num_intervals):
         c = random.choice(activated_intervals)
         try:
-            while intervals[i-1] == c and len(activated_intervals) > 1:
+            while (intervals[i-1] == c or (ALLOW_REPETITIONS.get() == 0 and c in intervals)) and len(activated_intervals) > 1:
                 c = random.choice(activated_intervals)
             intervals.append(c)
         except:
@@ -190,20 +190,23 @@ def settings():
     length_sb = Spinbox(other_frame, from_=3, to=10, textvariable=EXERCISE_LENGTH, state="readonly", width=5)
     playbackspeed_lbl = Label(other_frame, text="Playback speed: ")
     playbackspeed_sb = Spinbox(other_frame, from_=1, to=3, textvariable=PLAYBACK_SPEED, state="readonly", width=5)
+    allowrepetitions_cb = Checkbutton(other_frame, text="Allow repetitions", variable=ALLOW_REPETITIONS, style="SettingsCheckbutton.TCheckbutton")
     
+
     homenote_lbl.grid(row=0, column=0)
     homenote_om.grid(row=0, column=1)
     length_lbl.grid(row=1, column=0)
     length_sb.grid(row=1, column=1)
     playbackspeed_lbl.grid(row=2, column=0)
     playbackspeed_sb.grid(row=2, column=1)
+    allowrepetitions_cb.grid(row=3, column=0, columnspan=2, sticky='w', padx=5)
     other_frame.pack(fill='both', expand=True, padx=15, pady=15, ipadx=5, ipady=5)
     
     popup.mainloop()
 
 if __name__ == "__main__":
 
-    __version__ = "v1.4.7"
+    __version__ = "v1.4.8"
 
     if execute_update('intervalpractice', __version__, os.path.basename(__file__)):
         exit(0)
@@ -243,6 +246,7 @@ if __name__ == "__main__":
     HOME_NOTE_VARIABLE = StringVar(value="C")
     EXERCISE_LENGTH = StringVar(value="7")
     PLAYBACK_SPEED = StringVar(value="1")
+    ALLOW_REPETITIONS = IntVar(value=0)
     INTERVALS_ACTIVATED = {interval: IntVar(window, value=1) for interval in INTERVALS}
 
     turt = create_new_turtle(canvas)
