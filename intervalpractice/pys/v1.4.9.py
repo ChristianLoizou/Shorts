@@ -60,7 +60,7 @@ def generate_exercise():
 def setup_window():
     global play_btn
     root = Tk()
-    root.title("Interval Practice")
+    root.title(f"Interval Practice {__version__}")
     root.resizable(False, False)
     root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
     root.after(500, root.focus_force)
@@ -208,7 +208,7 @@ def settings():
 
     other_frame = LabelFrame(popup, text="Other settings", style="SettingsLabelframe.TLabelframe")
     homenote_lbl = Label(other_frame, text="Starting note: ")
-    homenote_om = OptionMenu(other_frame, OPTIONS['HOME_NOTE_VARIABLE'], *NOTE_NAMES, command=update_starting_note)
+    homenote_om = OptionMenu(other_frame, OPTIONS['HOME_NOTE_VARIABLE'], NOTE_NAMES[0], *NOTE_NAMES, command=update_starting_note)
     length_lbl = Label(other_frame, text="Exercise length: ")
     length_sb = Spinbox(other_frame, from_=3, to=10, textvariable=OPTIONS['EXERCISE_LENGTH'], state="readonly", width=5)
     playbackspeed_lbl = Label(other_frame, text="Playback speed: ")
