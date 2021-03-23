@@ -15,10 +15,10 @@ def retrieve_current_version(application_name):
     version = str(line).split('>')[1].split('<')[0].split(":")[1]
     return version
 
-def prompt_update():
+def prompt_update(cv):
     hidden = Tk()
     hidden.withdraw()
-    ans = messagebox.askyesno("Update available", "A new update is available for this application. Would you like to install it?")
+    ans = messagebox.askyesno("Update available", f"A new update ({cv}) is available for this application. Would you like to install it?")
     hidden.destroy()
     return ans
 
@@ -38,7 +38,7 @@ def update_application(application, new_version, filename):
 
 def execute_update(application_name, file_version, file_name):
     curr_version = retrieve_current_version(application_name)
-    if file_version != curr_version and prompt_update():
+    if file_version != curr_version and prompt_update(curr_version):
         update_application(application_name, curr_version, file_name)
         return True
     return False
