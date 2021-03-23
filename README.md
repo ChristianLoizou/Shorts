@@ -21,4 +21,4 @@ NOTE: [Python version 3.7+](https://python.org/downloads/) is required to compil
  If you plan on leaving out *application_update.py*, check first that the version you are using is capable of running without it. 12toneapp v1.6.1, intervalpractice v1.5 and parallelchecker v1.4.2 are the earliest versions that allow for execution without checking for updates.
 
 ## Credits
-- Nils Meier (testing) 
+- Nils Meier (*testing*) 
