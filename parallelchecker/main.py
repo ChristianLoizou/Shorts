@@ -8,13 +8,11 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename as openfilename
 from tkinter.ttk import Button, Checkbutton, Frame, Label, LabelFrame, Style
 
-from application_update import execute_update
-
 
 class Application:
     def __init__(self, width=700, height=700):
         self.width, self.height = width, height
-        self.version = "v1.4.1"
+        self.version = "v1.5"
         self.root = Tk()
         self.root.config(background=BACKGROUND_COL)
         self.root.title(f"Parallel Checker {self.version}")
@@ -252,9 +250,13 @@ def all_intervals():
 if __name__ == "__main__":
     BACKGROUND_COL = "#eeeeee"
     application = Application()
-
-    if execute_update('parallelchecker', application.version, os.path.basename(__file__)):
-        exit(0)
+    
+    try:
+        from application_update import execute_update
+        if execute_update('parallelchecker', application.version, os.path.basename(__file__)):
+            exit(0)
+    except:
+        pass
 
     interval_names = [
         "Perfect Unison", "Minor 2nd",

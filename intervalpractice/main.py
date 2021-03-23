@@ -1,5 +1,4 @@
 #!usr/bin/env python3
-from application_update import execute_update
 from math import acos, degrees, hypot
 from sys import platform, exit
 from tkinter import *
@@ -230,10 +229,14 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.4.9"
+    __version__ = "v1.5"
 
-    if execute_update('intervalpractice', __version__, os.path.basename(__file__)):
-        exit(0)
+    try:
+        from application_update import execute_update
+        if execute_update('intervalpractice', __version__, os.path.basename(__file__)):
+            exit(0)
+    except:
+        pass
 
     WIDTH, HEIGHT = (1200, 500)
     XPAD = 50

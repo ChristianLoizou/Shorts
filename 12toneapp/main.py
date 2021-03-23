@@ -12,8 +12,6 @@ from tkinter.ttk import Button, Label, LabelFrame, OptionMenu, Style
 import numpy as np
 
 
-from application_update import execute_update
-
 if platform == "win32":
     import threading
     from time import sleep
@@ -288,11 +286,15 @@ def refresh(prime: list = None):
 
 
 if __name__ == "__main__":
-    __version__ = "v1.6"
+    __version__ = "v1.6.1"
 
-    if execute_update('12toneapp', __version__, path.basename(__file__)):
-        exit(0)
-
+    try:
+        from application_update import execute_update
+        if execute_update('12toneapp', __version__, path.basename(__file__)):
+            exit(0)
+    except:
+        pass
+        
     root = Tk()
     given = argv[1:] if len(argv) > 1 else None
     RESET = False
