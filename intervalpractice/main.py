@@ -1,17 +1,18 @@
 #!usr/bin/env python3
-from math import acos, degrees, hypot
-from sys import platform, exit
-from tkinter import *
-from tkinter import messagebox
-from tkinter.ttk import Button, Checkbutton, LabelFrame, OptionMenu, Spinbox, Style
 import os
 import random
 import turtle
+from math import acos, degrees, hypot
+from sys import exit, platform
+from tkinter import *
+from tkinter import messagebox
+from tkinter.ttk import (Button, Checkbutton, Label, LabelFrame, OptionMenu,
+                         Spinbox, Style)
 
 if platform == "win32":
-    from winsound import Beep as playtone
-    from time import sleep
     import threading
+    from time import sleep
+    from winsound import Beep as playtone
 
 class Interval:
     def __init__(self, interval_string, direction):
@@ -154,7 +155,7 @@ def play_exercise():
     notes_to_play, home_idx = [HOME_NOTE], PITCHES.index(HOME_NOTE) 
 
     for interval in exercise:
-        new_note = PITCHES[home_idx + interval.semitones] # providing intervals cannot go out of range
+        new_note = PITCHES[home_idx + interval.semitones]
         notes_to_play.append(new_note)
         notes_to_play.append(HOME_NOTE)
     
@@ -190,42 +191,46 @@ def update_starting_note(_=None):
 
 
 def settings():
-    settings_styles = Style()
-    settings_styles.configure("SettingsLabelframe.TLabelframe.Label", font=("Verdana", 18, "normal"))
-    settings_styles.configure("SettingsLabelframe.TLabelframe.Label", foreground='black')
+    global settings_popup
+    try:
+        settings_popup.focus_force()
+    except:
+        settings_popup = Toplevel()
+        settings_popup.title("Settings")
+        settings_popup.transient(window)
+        settings_popup.resizable(False, False)
 
-    popup = Toplevel()
-    popup.title("Settings")
-    popup.transient(window)
-    popup.resizable(False, False)
+        settings_styles = Style()
+        settings_styles.configure("SettingsLabelframe.TLabelframe.Label", font=("Verdana", 18, "normal"))
+        settings_styles.configure("SettingsLabelframe.TLabelframe.Label", foreground=COLORS['TEXTCOLOR'])
 
-    interval_frame = LabelFrame(popup, text="Intervals to test", style="SettingsLabelframe.TLabelframe")
-    for idx, (setting, value) in enumerate(OPTIONS['INTERVALS_ACTIVATED'].items()):
-        cb = Checkbutton(interval_frame, text=str(Interval(setting, 1)), variable=value, style="SettingsCheckbutton.TCheckbutton")
-        cb.grid(row=(idx//2)+1, column=(idx%2)+1, sticky='nsew')
-    interval_frame.pack(fill='both', expand=True, padx=15, pady=15, ipadx=5, ipady=5)
+        interval_frame = LabelFrame(settings_popup, text="Intervals to test", style="SettingsLabelframe.TLabelframe")
+        for idx, (setting, value) in enumerate(OPTIONS['INTERVALS_ACTIVATED'].items()):
+            cb = Checkbutton(interval_frame, text=str(Interval(setting, 1)), variable=value, style="SettingsCheckbutton.TCheckbutton")
+            cb.grid(row=(idx//2)+1, column=(idx%2)+1, sticky='nsew')
+        interval_frame.pack(fill='both', expand=True, padx=15, pady=15, ipadx=5, ipady=5)
 
-    other_frame = LabelFrame(popup, text="Other settings", style="SettingsLabelframe.TLabelframe")
-    homenote_lbl = Label(other_frame, text="Starting note: ")
-    homenote_om = OptionMenu(other_frame, OPTIONS['HOME_NOTE_VARIABLE'], NOTE_NAMES[0], *NOTE_NAMES, command=update_starting_note)
-    length_lbl = Label(other_frame, text="Exercise length: ")
-    length_sb = Spinbox(other_frame, from_=3, to=10, textvariable=OPTIONS['EXERCISE_LENGTH'], state="readonly", width=5)
-    playbackspeed_lbl = Label(other_frame, text="Playback speed: ")
-    playbackspeed_sb = Spinbox(other_frame, from_=1, to=3, textvariable=OPTIONS['PLAYBACK_SPEED'], state="readonly", width=5)
-    allowrepetitions_cb = Checkbutton(other_frame, text="Allow repetitions", variable=OPTIONS['ALLOW_REPETITIONS'], style="SettingsCheckbutton.TCheckbutton")
-    showguidelines_cb = Checkbutton(other_frame, text="Show semitone guidelines\n(Applied on redraw)", variable=OPTIONS['SHOW_GUIDELINES'], style="SettingsCheckbutton.TCheckbutton")
-    
-    homenote_lbl.grid(row=0, column=0, sticky='w', padx=15)
-    homenote_om.grid(row=0, column=1, sticky='e')
-    length_lbl.grid(row=1, column=0, sticky='w', padx=15)
-    length_sb.grid(row=1, column=1, sticky='e')
-    playbackspeed_lbl.grid(row=2, column=0, sticky='w', padx=15)
-    playbackspeed_sb.grid(row=2, column=1, sticky='e')
-    allowrepetitions_cb.grid(row=3, column=0, columnspan=2, sticky='w', padx=15)
-    showguidelines_cb.grid(row=4, column=0, columnspan=2, sticky='w', padx=15)
-    other_frame.pack(fill='both', expand=True, padx=15, pady=15, ipadx=5, ipady=5)
-    
-    popup.mainloop()
+        other_frame = LabelFrame(settings_popup, text="Other settings", style="SettingsLabelframe.TLabelframe")
+        homenote_lbl = Label(other_frame, text="Starting note: ")
+        homenote_om = OptionMenu(other_frame, OPTIONS['HOME_NOTE_VARIABLE'], NOTE_NAMES[0], *NOTE_NAMES, command=update_starting_note)
+        length_lbl = Label(other_frame, text="Exercise length: ")
+        length_sb = Spinbox(other_frame, from_=3, to=10, textvariable=OPTIONS['EXERCISE_LENGTH'], state="readonly", width=5)
+        playbackspeed_lbl = Label(other_frame, text="Playback speed: ")
+        playbackspeed_sb = Spinbox(other_frame, from_=1, to=3, textvariable=OPTIONS['PLAYBACK_SPEED'], state="readonly", width=5)
+        allowrepetitions_cb = Checkbutton(other_frame, text="Allow repetitions", variable=OPTIONS['ALLOW_REPETITIONS'], style="SettingsCheckbutton.TCheckbutton")
+        showguidelines_cb = Checkbutton(other_frame, text="Show semitone guidelines\n(Applied on redraw)", variable=OPTIONS['SHOW_GUIDELINES'], style="SettingsCheckbutton.TCheckbutton")
+        
+        homenote_lbl.grid(row=0, column=0, sticky='w', padx=15)
+        homenote_om.grid(row=0, column=1, sticky='e')
+        length_lbl.grid(row=1, column=0, sticky='w', padx=15)
+        length_sb.grid(row=1, column=1, sticky='e')
+        playbackspeed_lbl.grid(row=2, column=0, sticky='w', padx=15)
+        playbackspeed_sb.grid(row=2, column=1, sticky='e')
+        allowrepetitions_cb.grid(row=3, column=0, columnspan=2, sticky='w', padx=15)
+        showguidelines_cb.grid(row=4, column=0, columnspan=2, sticky='w', padx=15)
+        other_frame.pack(fill='both', expand=True, padx=15, pady=15, ipadx=5, ipady=5)
+        
+        settings_popup.mainloop()
 
 if __name__ == "__main__":
 
@@ -237,6 +242,17 @@ if __name__ == "__main__":
             exit(0)
     except:
         pass
+
+    if platform == "win32":
+        COLORS = {
+            "WINDOW_BACKGROUND": None,
+            "TEXTCOLOR": None
+        }
+    elif platform == "darwin":
+        COLORS = {
+            "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
+            "TEXTCOLOR": 'systemTextColor'
+        }
 
     WIDTH, HEIGHT = (1200, 500)
     XPAD = 50
