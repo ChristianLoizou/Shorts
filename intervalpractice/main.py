@@ -137,7 +137,7 @@ def draw_exercise(exercise, canvas):
         nx, ny = cx + dx, interval.get_dy()
         lx, cx = cx, nx + dx
         txtangle = degrees(acos(dx/hypot(dx, ny))) * (ny/abs(ny))
-        t = canvas.create_text(lx + (dx//2), -ny//2, text=str(interval), angle=txtangle)
+        t = canvas.create_text(lx + (dx//2), -ny//2, text=str(interval), angle=txtangle, fill='black')
         bb = canvas.create_rectangle(canvas.bbox(t), fill='white', width=0)
         canvas.tag_lower(bb, t)
 
@@ -171,11 +171,13 @@ def play_home_tone():
     play_thread = threading.Thread(target=playtone, args=(FREQUENCY_DICT[HOME_NOTE], TONE_DURATION), daemon=True)
     play_thread.start()
 
+
 def play_notes(notes):
     pause = [.6, .2, .005][int(OPTIONS['PLAYBACK_SPEED'].get())-1]
     for freq in notes:
         playtone(freq, TONE_DURATION)
         sleep(pause)
+
 
 def rerun_application():
     global exercise
@@ -184,6 +186,7 @@ def rerun_application():
         draw_exercise(exercise, canvas)
     else:
         messagebox.showerror("Could not create exercise", "No intervals have been selected to test. Please select at least one interval in the 'intervals' menu and try again")
+
 
 def update_starting_note(_=None):
     global HOME_NOTE, OPTIONS
@@ -234,7 +237,7 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.5"
+    __version__ = "v1.6"
 
     try:
         from application_update import execute_update
@@ -243,7 +246,7 @@ if __name__ == "__main__":
     except:
         pass
 
-    if platform == "win32":
+    if platform in ["win32", 'linux']:
         COLORS = {
             "WINDOW_BACKGROUND": None,
             "TEXTCOLOR": None
@@ -292,7 +295,7 @@ if __name__ == "__main__":
         PLAYBACK_SPEED = StringVar(value="1"),
         ALLOW_REPETITIONS = IntVar(value=0),
         INTERVALS_ACTIVATED = {interval: IntVar(value=1) for interval in INTERVALS},
-        SHOW_GUIDELINES = IntVar(value=0)
+        SHOW_GUIDELINES = IntVar(value=1)
     )
     turt = create_new_turtle(canvas)
     window.mainloop()
