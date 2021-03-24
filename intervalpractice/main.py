@@ -237,7 +237,7 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.6"
+    __version__ = "v1.5.5"
 
     try:
         from application_update import execute_update
@@ -248,14 +248,15 @@ if __name__ == "__main__":
 
     if platform in ["win32", 'linux']:
         COLORS = {
-            "WINDOW_BACKGROUND": None,
-            "TEXTCOLOR": None
+            "WINDOW_BACKGROUND": '#cccccc',
+            "TEXTCOLOR": 'black'
         }
     elif platform == "darwin":
         COLORS = {
             "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
             "TEXTCOLOR": 'systemTextColor'
         }
+
 
     WIDTH, HEIGHT = (1200, 500)
     XPAD = 50
