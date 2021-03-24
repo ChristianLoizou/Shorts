@@ -253,9 +253,10 @@ if __name__ == "__main__":
     
     try:
         from application_update import execute_update
-        if execute_update('parallelchecker', application.version, os.path.basename(__file__)):
-            exit(0)
-    except:
+        if execute_update('parallelchecker', __version__, os.path.basename(__file__)):
+            exit()
+
+    except ModuleNotFoundError:
         pass
 
     interval_names = [

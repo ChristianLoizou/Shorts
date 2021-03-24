@@ -62,7 +62,8 @@ def setup_window():
     root = Tk()
     root.title(f"Interval Practice {__version__}")
     root.resizable(False, False)
-    root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
+    try: root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
+    except: pass
     root.after(500, root.focus_force)
 
     canvas = Canvas(root, width=WIDTH, height=HEIGHT)
@@ -242,10 +243,11 @@ if __name__ == "__main__":
     try:
         from application_update import execute_update
         if execute_update('intervalpractice', __version__, os.path.basename(__file__)):
-            exit(0)
-    except:
-        pass
+            exit()
 
+    except ModuleNotFoundError:
+        pass
+        
     if platform in ["win32", 'linux']:
         COLORS = {
             "WINDOW_BACKGROUND": '#cccccc',
