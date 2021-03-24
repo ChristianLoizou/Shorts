@@ -243,18 +243,21 @@ def save_matrix(matrix: list):
 
 
 def settings():
+    global settings_popup
+    try: settings_popup.destroy()
+    except: pass
     settings_styles = Style()
     settings_styles.configure(
         "SettingsLabelframe.TLabelframe.Label", font=("Verdana", 18, "normal"))
     settings_styles.configure(
-        "SettingsLabelframe.TLabelframe.Label", foreground='black')
+        "SettingsLabelframe.TLabelframe.Label", foreground=COLORS['TEXTCOLOR'])
 
-    popup = Toplevel()
-    popup.title("Settings")
-    popup.transient(root)
-    popup.resizable(False, False)
+    settings_popup = Toplevel()
+    settings_popup.title("Settings")
+    settings_popup.transient(root)
+    settings_popup.resizable(False, False)
 
-    other_frame = LabelFrame(popup, text="Settings", style="SettingsLabelframe.TLabelframe")
+    other_frame = LabelFrame(settings_popup, text="Settings", style="SettingsLabelframe.TLabelframe")
     basefreq_lbl = Label(other_frame, text="Octave")
     basefreq_om = OptionMenu(other_frame, OPTIONS['BASE_FREQ'], BASE_FREQS[-1], *BASE_FREQS)
     
@@ -263,7 +266,7 @@ def settings():
     basefreq_om.grid(row=0, column=1, padx=5)
     other_frame.pack(padx=15, pady=15, ipadx=5, ipady=5)
 
-    popup.mainloop()
+    settings_popup.mainloop()
 
 
 def refresh(prime: list = None):
@@ -289,7 +292,7 @@ if __name__ == "__main__":
     
     try:
         from application_update import execute_update
-        if execute_update('12toneapp', __version__, os.path.basename(__file__)):
+        if execute_update('12toneapp', __version__, path.basename(__file__)):
             exit()
 
     except ModuleNotFoundError:
@@ -307,6 +310,17 @@ if __name__ == "__main__":
     OPTIONS = dict(
         BASE_FREQ = StringVar(value=BASE_FREQS[-1])
     )
+
+    if platform in ["win32", 'linux']:
+        COLORS = {
+            "WINDOW_BACKGROUND": '#cccccc',
+            "TEXTCOLOR": 'black'
+        }
+    elif platform == "darwin":
+        COLORS = {
+            "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
+            "TEXTCOLOR": 'systemTextColor'
+        }
 
     root.title(f"12-tone matrix generator {__version__}")
     root.resizable(False, False)

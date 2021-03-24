@@ -3,7 +3,7 @@ import os
 import sys
 import xml.etree.ElementTree as ElementTree
 from itertools import combinations
-from sys import exit
+from sys import exit, platform
 from tkinter import *
 from tkinter.filedialog import askopenfilename as openfilename
 from tkinter.ttk import Button, Checkbutton, Frame, Label, LabelFrame, Style
@@ -14,7 +14,7 @@ class Application:
         self.width, self.height = width, height
         self.version = "v1.5"
         self.root = Tk()
-        self.root.config(background=BACKGROUND_COL)
+        self.root.config(background=COLORS['WINDOW_BACKGROUND'])
         self.root.title(f"Parallel Checker {self.version}")
         self.root.geometry(f"{width}x{height}")
         self.root.resizable(False, False)
@@ -26,7 +26,7 @@ class Application:
         self.output_text_variable = StringVar(value='Open a MusicXML file to check it for parallels!')
         out_lbl = Label(self.mainframe, textvariable=self.output_text_variable, width=self.width/5)
         load_btn = Button(self.mainframe, text="Load XML/MusicXML file", command=self.load_file, width=self.width/5)
-        sett_btn = Button(self.mainframe, text="Options", command=self.options_menu, width=self.width/5)
+        sett_btn = Button(self.mainframe, text="Options", command=self.settings_menu, width=self.width/5)
 
         out_lbl.grid(row=0, column=0, columnspan=3, sticky="nsew")
         load_btn.grid(row=1, column=0, columnspan=3, sticky="nsew")
@@ -36,15 +36,18 @@ class Application:
     def run(self):
         self.root.mainloop()
     
-    def options_menu(self):
+    def settings_menu(self):
+        global settings_popup
+        try: settings_popup.destroy()
+        except: pass
         settings_styles = Style()
         settings_styles.configure("SettingsLabelframe.TLabelframe.Label", font=("Verdana", 15, "normal"))
-        settings_styles.configure("SettingsLabelframe.TLabelframe.Label", foreground='black')
+        settings_styles.configure("SettingsLabelframe.TLabelframe.Label", foreground=COLORS['TEXTCOLOR'])
 
-        popup = Toplevel(self.root)
-        popup.title("Options")
-        popup.resizable(False, False)
-        mainframe = Frame(popup)
+        settings_popup = Toplevel(self.root)
+        settings_popup.title("Options")
+        settings_popup.resizable(False, False)
+        mainframe = Frame(settings_popup)
         int_frame = LabelFrame(mainframe, text="Parallels to detect", style="SettingsLabelframe.TLabelframe")
         other_frame = LabelFrame(mainframe, text="Other options", style="SettingsLabelframe.TLabelframe")
         # int_frame options
@@ -67,7 +70,7 @@ class Application:
         int_frame.grid(row=0, column=0, ipadx=15, ipady=15, padx=15, pady=15, sticky="nsew")
         other_frame.grid(row=0, column=1, ipadx=15, ipady=15, padx=15, pady=15, sticky="nsew")        
         mainframe.pack()
-        popup.mainloop()
+        settings_popup.mainloop()
     
     def load_file(self, _=None):
         fn = openfilename(
@@ -248,16 +251,26 @@ def all_intervals():
     toggle = int(not toggle)
 
 if __name__ == "__main__":
-    BACKGROUND_COL = "#eeeeee"
+    if platform in ["win32", 'linux']:
+            COLORS = {
+            "WINDOW_BACKGROUND": '#cccccc',
+            "TEXTCOLOR": 'black'
+        }
+    elif platform == "darwin":
+        COLORS = {
+            "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
+            "TEXTCOLOR": 'systemTextColor'
+        }
     application = Application()
     
     try:
         from application_update import execute_update
-        if execute_update('parallelchecker', __version__, os.path.basename(__file__)):
+        if execute_update('parallelchecker', application.version, os.path.basename(__file__)):
             exit()
 
     except ModuleNotFoundError:
         pass
+
 
     interval_names = [
         "Perfect Unison", "Minor 2nd",
