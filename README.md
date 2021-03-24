@@ -9,15 +9,9 @@ The latest Windows executable version of any project can be found in _.exe_ form
 Eg. *'intervalpractice/latest.exe'*.
 
 ### Mac
-The latest Darwin (MacOS) application version of any project can be found in _.app_ format at: *{projectname}/latest.app/*.
+The latest Darwin (MacOS) application version of any project can be found in _.dmg_ format at: *{projectname}/latest-darwin/latest.dmg/*.
 
-Eg. *'intervalpractice/latest.app/'*.
-
-*Note:* Darwin applications appear as folders. If you don't have the [git command line tool](https://git-scm) you'll need to download the entire repoistory as a *'.zip'*, unpack it, take out the *'.app'* folder and its contents, and then delete the rest of the repository 
-
-If you do have the [git command line tool](https://git-scm) you can take a look at [this helpful article](https://github.community/t/how-can-i-download-a-specific-folder-from-a-github-repo/278#M20) to see how to download a specific folder within a repository using `git clone`.
-The entire folder with name ending in *'.app'* and its contents must be downloaded to run on MacOS.
-
+Eg. *'intervalpractice/latest.dmg'*.
 ### Linux
 *Coming soon*
 

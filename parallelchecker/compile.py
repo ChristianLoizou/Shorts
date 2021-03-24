@@ -32,7 +32,7 @@ if platform == 'win32':
     system("pyinstaller --onefile -w main.py")
     copy('dist\\main.exe', 'latest.exe')
     copy('latest.exe', f'exes\\v{curr_version}.exe')
-    for directory in ["dist", "build", "__pycache__"]:
+    for directory in ["dist", "build"]:
         rmtree(directory)
     remove('main.spec')
 elif platform == 'darwin':
@@ -47,8 +47,12 @@ elif platform == 'darwin':
             setup_file.write(line)
     system('python3.7 setup.py py2app')
     sleep(.5)
-    system('cp -r dist/main.app/ latest.app/')
-    system(f'cp -r dist/main.app/ apps/v{curr_version}.app/')
+    system('mkdir latest-darwin')
+    system(f'mkdir apps/v{curr_version}')
+    system('cp -r dist/main.app/ latest-darwin/latest.app/')
+    system(f'cp -r dist/main.app/ apps/v{curr_version}/v{curr_version}.app/')
+    system('hdiutil create -ov -volname latest -srcfolder latest-darwin/latest.app latest-darwin/latest.dmg')
+    system(f'cp -r latest-darwin/latest.dmg apps/v{curr_version}/v{curr_version}.dmg')
     for directory in ['dist', 'build']:
         rmtree(directory)
     remove('setup.py')
