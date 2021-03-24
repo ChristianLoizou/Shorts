@@ -26,6 +26,7 @@ with open("VERSION_DATA", 'w') as version_data_file:
 
 chdir(PROJECT_NAME)
 if platform == 'win32':
+    copy('assets', f'asset_backups\\v{curr_version}')
     copy('main.py', f'pys\\v{curr_version}.py')
     if 'latest.py' in listdir():
         copy('latest.exe', f'exes\\v{last_version}.exe')
@@ -36,6 +37,7 @@ if platform == 'win32':
         rmtree(directory)
     remove('main.spec')
 elif platform == 'darwin':
+    system(f'cp -r assets asset_backups/v{curr_version}')
     DEPENDENCIES = ['assets', 'application_update.py']
     system('py2applet --make-setup main.py')
     with open('setup.py', 'r') as setup_file:
