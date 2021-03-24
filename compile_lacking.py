@@ -7,7 +7,7 @@ from time import sleep
 
 
 def execute_command(command):
-    process = call(command.split(), stdout=open(devnull, 'wb'))
+    _ = call(command.split(), stdout=open(devnull, 'wb'))
 
 
 def compile_win(project, version):
