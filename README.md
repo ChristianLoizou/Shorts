@@ -9,7 +9,7 @@ The latest Windows executable version of any project can be found in _.exe_ form
 Eg. *'intervalpractice/latest.exe'*.
 
 ### Mac
-The latest Darwin (MacOS) application version of any project can be found in _.dmg_ format at: *{projectname}/latest-darwin/latest.dmg/*.
+The latest Darwin (MacOS) disk-image version of any project can be found in _.dmg_ format at: *{projectname}/latest-darwin/latest.dmg/*.
 
 Eg. *'intervalpractice/latest.dmg'*.
 ### Linux
