@@ -1,4 +1,4 @@
-from os import chdir, listdir, remove, system
+from os import chdir, listdir, remove, sep, system
 from shutil import copyfile as copy
 from shutil import rmtree
 from sys import platform
@@ -26,18 +26,20 @@ with open("VERSION_DATA", 'w') as version_data_file:
 
 chdir(PROJECT_NAME)
 if platform == 'win32':
-    copy('assets', f'asset_backups\\v{curr_version}')
-    copy('main.py', f'pys\\v{curr_version}.py')
+    copy('assets', f'asset_backups{sep}v{curr_version}{sep}assets{sep}') #! test needed
+    copy('application_update.py', f'asset_backups{sep}v{curr_version}{sep}application_update.py') #! test needed
+    copy('main.py', f'pys{sep}v{curr_version}.py')
     if 'latest.py' in listdir():
-        copy('latest.exe', f'exes\\v{last_version}.exe')
+        copy('latest.exe', f'exes{sep}v{last_version}.exe')
     system("pyinstaller --onefile -w main.py")
-    copy('dist\\main.exe', 'latest.exe')
-    copy('latest.exe', f'exes\\v{curr_version}.exe')
+    copy(f'dist{sep}main.exe', 'latest.exe')
+    copy('latest.exe', f'exes{sep}v{curr_version}.exe')
     for directory in ["dist", "build"]:
         rmtree(directory)
     remove('main.spec')
 elif platform == 'darwin':
-    system(f'cp -r assets asset_backups/v{curr_version}')
+    system(f'cp -r assets asset_backups{sep}v{curr_version}{sep}assets')
+    system(f'cp application_update.py asset_backups{sep}v{curr_version}{sep}application_update.py')
     DEPENDENCIES = ['assets', 'application_update.py']
     system('py2applet --make-setup main.py')
     with open('setup.py', 'r') as setup_file:
@@ -50,11 +52,11 @@ elif platform == 'darwin':
     system('python3.7 setup.py py2app')
     sleep(.5)
     system('mkdir latest-darwin')
-    system(f'mkdir apps/v{curr_version}')
-    system('cp -r dist/main.app/ latest-darwin/latest.app/')
-    system(f'cp -r dist/main.app/ apps/v{curr_version}/v{curr_version}.app/')
-    system('hdiutil create -ov -volname latest -srcfolder latest-darwin/latest.app latest-darwin/latest.dmg')
-    system(f'cp -r latest-darwin/latest.dmg apps/v{curr_version}/v{curr_version}.dmg')
+    system(f'mkdir apps{sep}v{curr_version}')
+    system(f'cp -r dist{sep}main.app{sep} latest-darwin{sep}latest.app{sep}')
+    system(f'cp -r dist{sep}main.app{sep} apps{sep}v{curr_version}{sep}v{curr_version}.app{sep}')
+    system(f'hdiutil create -ov -volname latest -srcfolder latest-darwin{sep}latest.app latest-darwin{sep}latest.dmg')
+    system(f'cp -r latest-darwin{sep}latest.dmg apps{sep}v{curr_version}{sep}v{curr_version}.dmg')
     for directory in ['dist', 'build']:
         rmtree(directory)
     remove('setup.py')
