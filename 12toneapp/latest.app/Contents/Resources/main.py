@@ -11,7 +11,6 @@ from tkinter.ttk import Button, Label, LabelFrame, OptionMenu, Style
 
 import numpy as np
 
-
 if platform == "win32":
     import threading
     from time import sleep
@@ -287,12 +286,13 @@ def refresh(prime: list = None):
 
 if __name__ == "__main__":
     __version__ = "v1.6.1"
-
+    
     try:
         from application_update import execute_update
-        if execute_update('12toneapp', __version__, path.basename(__file__)):
-            exit(0)
-    except:
+        if execute_update('12toneapp', __version__, os.path.basename(__file__)):
+            exit()
+
+    except ModuleNotFoundError:
         pass
         
     root = Tk()

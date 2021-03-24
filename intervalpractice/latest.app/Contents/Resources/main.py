@@ -62,7 +62,8 @@ def setup_window():
     root = Tk()
     root.title(f"Interval Practice {__version__}")
     root.resizable(False, False)
-    root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
+    try: root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
+    except: pass
     root.after(500, root.focus_force)
 
     canvas = Canvas(root, width=WIDTH, height=HEIGHT)
@@ -237,25 +238,27 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.6"
+    __version__ = "v1.5.5"
 
     try:
         from application_update import execute_update
         if execute_update('intervalpractice', __version__, os.path.basename(__file__)):
-            exit(0)
-    except:
+            exit()
+
+    except ModuleNotFoundError:
         pass
-    
-    if platform == "darwin":
+        
+    if platform in ["win32", 'linux']:
+        COLORS = {
+            "WINDOW_BACKGROUND": '#cccccc',
+            "TEXTCOLOR": 'black'
+        }
+    elif platform == "darwin":
         COLORS = {
             "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
             "TEXTCOLOR": 'systemTextColor'
         }
-    else: # win32, linux, ...any others
-        COLORS = {
-            "WINDOW_BACKGROUND": None,
-            "TEXTCOLOR": None
-        }
+
 
     WIDTH, HEIGHT = (1200, 500)
     XPAD = 50
