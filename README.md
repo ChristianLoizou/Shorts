@@ -38,7 +38,7 @@ NOTE: [Python version 3.7+](https://python.org/downloads/) is required to compil
 
  If you plan on leaving out *application_update.py*, check first that the version you are using is capable of running without it. 12toneapp v1.6.1, intervalpractice v1.5 and parallelchecker v1.4.2 are the earliest versions that allow for execution without checking for updates.
 
-Please also note that depending on your PATH environment variable / operating system, `python37`  may be accessed under `python3.7`. Usually `python37` works on Windows, and `python3.7` works for Darwin (MacOS). 
+Please also note that depending on your PATH environment variable / operating system, you may need to swap `python37` for `python3.7`. Usually `python37` works on Windows, and `python3.7` works for Darwin (MacOS). 
 ### Requests
 Submit a fork if you've improved / added anything to any of the projects and I'll review and merge!
 ### Credits
