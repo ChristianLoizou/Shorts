@@ -1,7 +1,6 @@
 # Shorts
 Some smaller projects which don't each deserve their own repository. 
-
-*Freely available under MIT License.*
+*All projects are freely available under MIT License.*
 
 ## Installation and Usage
 ### Windows
@@ -14,7 +13,10 @@ The latest Darwin (MacOS) application version of any project can be found in _.a
 
 Eg. *'intervalpractice/latest.app/'*.
 
-*Note:* Darwin applications appear as folders. The entire folder with name ending in *'.app'* must be downloaded to run on MacOS.
+*Note:* Darwin applications appear as folders. If you don't have the [git command line tool](https://git-scm) you'll need to download the entire repoistory as a *'.zip'*, unpack it, take out the *'.app'* folder and its contents, and then delete the rest of the repository 
+
+If you do have the [git command line tool](https://git-scm) you can take a look at [this helpful article](https://github.community/t/how-can-i-download-a-specific-folder-from-a-github-repo/278#M20) to see how to download a specific folder within a repository using `git clone`.
+The entire folder with name ending in *'.app'* and its contents must be downloaded to run on MacOS.
 
 ### Linux
 *Coming soon*
