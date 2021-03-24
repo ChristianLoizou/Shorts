@@ -6,10 +6,12 @@ Some smaller projects which don't each deserve their own repository.
 ## Installation and Usage
 ### Windows
 The latest Windows executable version of any project can be found in _.exe_ format at: *{projectname}/latest.exe*.
+
 Eg. *'intervalpractice/latest.exe'*.
 
 ### Mac
 The latest Darwin (MacOS) application version of any project can be found in _.app_ format at: *{projectname}/latest.app/*.
+
 Eg. *'intervalpractice/latest.app/'*.
 
 *Note:* Darwin applications appear as folders. The entire folder with name ending in *'.app'* must be downloaded to run on MacOS.
