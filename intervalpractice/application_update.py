@@ -13,7 +13,10 @@ def retrieve_current_version(application_name):
     source = requests.get(UPDATE_URL).text
     soup = BeautifulSoup(source, 'lxml')
     lines = list(soup.find_all('td', class_='blob-code blob-code-inner js-file-line'))
-    line = [line for line in lines if application_name in str(line)][0]
+    try:
+        line = [line for line in lines if application_name in str(line)][0]
+    except IndexError:
+        return None
     version = str(line).split('>')[1].split('<')[0].split(":")[1]
     return version
 
@@ -47,6 +50,8 @@ def update_application(application, new_version, filename):
 
 def execute_update(application_name, file_version, file_name):
     curr_version = retrieve_current_version(application_name)
+    if curr_version is None:
+        return False
     if file_version != curr_version and prompt_update(curr_version):
         return update_application(application_name, curr_version, file_name) 
     return False
