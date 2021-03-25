@@ -4,7 +4,7 @@ An application to check an Uncompressed MusicXML file for parallel intervals. Ma
 
 The Python file of the latest release is *'/main.py'.* 
 The Windows executable of the latest release is *'/latest.exe'*.
-The Darwin (MacOS) application of the latest release is *'/latest.app/'*.
+The Darwin (MacOS) application of the latest release is *'/latest-darwin/latest.dmg'*.
 For all releases please see 'exes', 'apps' or 'pys' folders.
 
 Possible additions:
