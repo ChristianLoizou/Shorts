@@ -288,7 +288,7 @@ def refresh(prime: list = None):
 
 
 if __name__ == "__main__":
-    __version__ = "v1.6.1"
+    __version__ = "v1.6.2"
     
     try:
         from application_update import execute_update
