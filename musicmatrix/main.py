@@ -1,3 +1,4 @@
+#!python3.7
 import numpy as np
 from os import path, sep
 from random import choice as randchoice
@@ -5,6 +6,7 @@ from sys import exit, platform
 from tkinter import *
 from tkinter import font
 from tkinter.ttk import Label, LabelFrame, Button as ttkButton
+from tkinter.messagebox import askyesno
 from functools import partial
 
 class Cell:
@@ -27,14 +29,19 @@ class Application:
         self._gridsize = self._default_gridsize
         self._currently_selected = None
         self._font = "Verdana" if "Verdana" in font.families() else None
+        self.keys = {
+            'control': False,
+            'alt': False   
+        }
 
         self.window.config(background=COLORS['WINDOW_BACKGROUND'])
         self.window.bind('<KeyPress>', partial(self.callbacks.key_pressed, self))
+        self.window.bind('<KeyRelease>', partial(self.callbacks.key_released, self))
         self.window.title(f"Music Matrix {self.version}")
         self.window.geometry(f"{self._width}x{self._height}")
         self.window.resizable(False, False)
-        try: self.window.tk.call('wm', 'iconphoto', self.window._w, PhotoImage(file=f'assets{sep}icon.png'))
-        except: pass
+        self.window.tk.call('wm', 'iconphoto', self.window._w, PhotoImage(file=f'assets{sep}icon.png'))
+        
         self.cells = [[Cell() for _ in range(self._gridsize)] for _ in range(self._gridsize)]
         self._mainframe = Frame(self.window, width=self._width, height=3*self._height//4)
         self._buttonframe = Frame(self.window, width=self._width, height=self._height//4)
@@ -58,8 +65,19 @@ class Application:
         self._grid_buttons = list()
         self._mainframe.destroy()
         self._mainframe = Frame(self.window, width=self._width, height=3*self._height//4)
-        self._cellwidth = (self._mainframe['width'] - (2*self._frame_pad)) // self._gridsize
-        self._cellheight = (self._mainframe['height'] - (2*self._frame_pad)) // self._gridsize
+        self._cellwidth = (self._mainframe['width'] - (4*self._frame_pad)) // (self._gridsize + 1)
+        self._cellheight = (self._mainframe['height'] - (4*self._frame_pad)) // (self._gridsize + 1)
+        
+        Label(
+            self._mainframe, 
+            text='P0 →',
+            font=(self._font, 18)
+        ).place(
+            x=(-.15*self._cellwidth)+self._frame_pad, 
+            y=(.5*self._cellheight)+self._frame_pad, 
+            width=self._cellwidth, 
+            height=self._cellheight
+        )
         for rn, r in enumerate(self.cells):
             self._grid_buttons.append(list())
             for cn, c in enumerate(r):
@@ -70,7 +88,12 @@ class Application:
                     command=partial(self.callbacks.gridbutton, self, cn, rn),
                     highlightbackground=COLORS['BTNBG_NOTSELECTED']
                     )
-                cbtn.place(x=(rn*self._cellwidth), y=(cn*self._cellheight), width=self._cellwidth, height=self._cellheight)
+                cbtn.place(
+                    x=((rn+.5)*self._cellwidth)+self._frame_pad, 
+                    y=((cn+.5)*self._cellheight)+self._frame_pad, 
+                    width=self._cellwidth, 
+                    height=self._cellheight
+                    )
                 self._grid_buttons[-1].append(cbtn)
 
     def update_cell_display(self):
@@ -90,22 +113,25 @@ class Application:
     
     
     def create_menubuttons(self):
-        btn_export    = ttkButton(self._buttonframe, text="Export to MIDI",      command=partial(self.callbacks.export,              self))
-        btn_increase  = ttkButton(self._buttonframe, text="Increase grid size",  command=partial(self.callbacks.increase_gridsize,   self))
-        btn_decrease  = ttkButton(self._buttonframe, text="Decrease grid size",  command=partial(self.callbacks.decrease_gridsize,   self))
-        btn_settings  = ttkButton(self._buttonframe, text="Settings",            command=partial(self.callbacks.settings,            self))
-        btn_cleargrid = ttkButton(self._buttonframe, text="Clear grid",          command=partial(self.callbacks.cleargrid,           self))
+        btn_export       = ttkButton(self._buttonframe, text="Export to MIDI",      command=partial(self.callbacks.export,              self))
+        btn_increase     = ttkButton(self._buttonframe, text="Increase grid size",  command=partial(self.callbacks.increase_gridsize,   self))
+        btn_decrease     = ttkButton(self._buttonframe, text="Decrease grid size",  command=partial(self.callbacks.decrease_gridsize,   self))
+        btn_cleargrid    = ttkButton(self._buttonframe, text="Clear grid",          command=partial(self.callbacks.cleargrid,           self))
+        btn_completegrid = ttkButton(self._buttonframe, text="Complete grid",       command=partial(self.callbacks.completegrid,        self))
+        btn_settings     = ttkButton(self._buttonframe, text="Settings",            command=partial(self.callbacks.settings,            self))
 
-        btn_export.grid   (row=0, column=0, columnspan=2, sticky='nsew')
-        btn_increase.grid (row=1, column=0,               sticky='nsew')
-        btn_decrease.grid (row=1, column=1,               sticky='nsew')
-        btn_cleargrid.grid(row=2, column=0, columnspan=2, sticky='nsew')
-        btn_settings.grid (row=3, column=0, columnspan=2, sticky='nsew')
+
+        btn_export.grid      (row=0, column=0, columnspan=2, sticky='nsew')
+        btn_increase.grid    (row=1, column=0,               sticky='nsew')
+        btn_decrease.grid    (row=1, column=1,               sticky='nsew')
+        btn_cleargrid.grid   (row=2, column=0,               sticky='nsew')
+        btn_completegrid.grid(row=2, column=1,               sticky='nsew')
+        btn_settings.grid    (row=3, column=0, columnspan=2, sticky='nsew')
 
 
     class callbacks:
         def gridbutton(self, x, y):
-            c = self.cells[y][x]
+            # c = self.cells[y][x]
             self._currently_selected = (y, x)
             self.update_cell_display()
             
@@ -123,7 +149,6 @@ class Application:
                         except:
                             pass
                 self.cells = ncells
-
                 self._cellwidth = (self._mainframe['width'] - (2*self._frame_pad)) // self._gridsize
                 self._cellheight = (self._mainframe['height'] - (2*self._frame_pad)) // self._gridsize
                 self.create_grid()
@@ -140,30 +165,55 @@ class Application:
                         except:
                             pass
                 self.cells = ncells
-
                 self._cellwidth = (self._mainframe['width'] - (2*self._frame_pad)) // self._gridsize
                 self._cellheight = (self._mainframe['height'] - (2*self._frame_pad)) // self._gridsize
                 self.create_grid()
                 self.draw_window()
         
         def settings(self):
-            pass
+            settings_popup = Toplevel()
+            settings_popup.title('Settings')
+            
+            settings_popup.mainloop()
         
         def key_pressed(self, event):
             if self._currently_selected is not None:
                 y, x = self._currently_selected
-                if event.char==event.keysym:
+                if event.char == event.keysym and event.char.lower() in 'abcdefg':
                     self.cells[y][x].content = event.char.upper()
+                    if self.keys['control']: self.cells[y][x].content += 'b'
+                    elif self.keys['alt']: self.cells[y][x].content += '#'
                 elif event.keysym in ['Right', 'Left', 'Up', 'Down']:
                     dx, dy = {'Right':(0,1), 'Left':(0,-1), 'Up':(-1,0), 'Down':(1,0)}[event.keysym]
                     if 0 <= y+dy < self._gridsize and 0 <= x+dx < self._gridsize:
                         self._currently_selected = (y+dy, x+dx)
                 elif event.keysym == 'BackSpace':
                     self.cells[y][x].content = "_"
-                else:
-                    print(event.char, event.keysym)
+                elif 'Control' in event.keysym or 'Meta' in event.keysym:
+                    self.keys['control'] = True
+                elif 'Alt' in event.keysym or 'Shift' in event.keysym:
+                    self.keys['alt'] = True
+                elif event.keysym == 'Escape':
+                    self._currently_selected = None
+            print(event.keysym)
             self.update_cell_display()
+
+        def key_released(self, event):
+            if 'Control' in event.keysym or 'Meta' in event.keysym:
+                self.keys['control'] = False
+            elif 'Alt' in event.keysym or 'Shift' in event.keysym:
+                self.keys['alt'] = False
         
+        def completegrid(self):
+            sure = askyesno(
+                'Are you sure?', 
+                'Completing the grid will erase data all but the prime row (P0). Are you sure you want to continue?'
+                )
+            if sure:
+                pass #complete the grid from P0
+            else:
+                return
+
         def cleargrid(self):
             for r in self.cells:
                 for c in r:
@@ -184,7 +234,7 @@ if __name__ == "__main__":
         COLORS = {
             "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
             "TEXTCOLOR": 'systemTextColor',
-            "BTNBG_NOTSELECTED": '#3E4149',
+            "BTNBG_NOTSELECTED": 'systemWindowBackgroundColor',
             "BTNBG_SELECTED": '#4074E1'
 
         }
