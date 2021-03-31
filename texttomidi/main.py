@@ -1,6 +1,8 @@
+
 from collections import defaultdict
 from functools import partial
-from midiutil.MidiFile import MIDIFile
+from json import load as loadJSON
+from midiutil.MidiFile import MIDIFile, SHARPS, FLATS, MAJOR, MINOR
 from os import path, sep
 from random import choice as ranchoice, randint
 from sys import platform
@@ -43,7 +45,8 @@ class Application:
             'complex_tokens': IntVar(value=0),
             'conjoin': IntVar(value=1),
             'voices': StringVar(value='1'),
-            'randomise_dynamic': IntVar(value=0)
+            'randomise_dynamic': IntVar(value=0),
+            'tempo': StringVar(value='90')
         }
         self.delimiter = ' '
 
@@ -105,7 +108,21 @@ class Application:
         self.help_popup.resizable(False, False)
         self.help_popup.bind('<FocusOut>', lambda _: self.help_popup.destroy())
 
-        Message(self.help_popup, text="").pack(fill='both', expand=True)
+        _frame = Frame(self.help_popup, borderwidth=0)
+        _canvas = Canvas(_frame, borderwidth=0)
+        _scroll = Scrollbar(_frame, orient='vertical', command=_canvas.yview)
+        _frame_inner = Frame(_canvas, borderwidth=0)
+
+        Message(_frame_inner, text=HELP_TEXT).pack(fill='both', expand=True)
+
+        _canvas.configure(yscrollcommand=_scroll.set)
+        _canvas.bind('<Configure>', lambda event: _canvas.configure(scrollregion=_canvas.bbox('all')))
+        _canvas.bind_all('<MouseWheel>', lambda event: _canvas.yview_scroll(int(-1*(event.delta/SCROLL_DENOM)), "units"))
+        _canvas.create_window((0, 0), window=_frame_inner, anchor='nw')
+
+        _frame.pack(fill='both', expand=True)
+        _canvas.pack(side='left', fill='both', expand=True)
+        _scroll.pack(side='right', fill='y', expand=False)
 
         self.help_popup.mainloop()
     
@@ -125,6 +142,15 @@ class Application:
         _canvas = Canvas(_frame, borderwidth=0)
         _scroll = Scrollbar(_frame, orient='vertical', command=_canvas.yview)
         _frame_inner = Frame(_canvas, borderwidth=0)
+
+        _canvas.configure(yscrollcommand=_scroll.set)
+        _canvas.bind('<Configure>', lambda event: _canvas.configure(scrollregion=_canvas.bbox('all')))
+        _canvas.bind_all('<MouseWheel>', lambda event: _canvas.yview_scroll(int(-1*(event.delta/SCROLL_DENOM)), "units"))
+        _canvas.create_window((0, 0), window=_frame_inner, anchor='nw')
+
+        _frame.pack(fill='both', expand=True)
+        _canvas.pack(side='left', fill='both', expand=True)
+        _scroll.pack(side='right', fill='y', expand=False)
         
         def entry_focused(ent, event):
             if ent.get() == 'ignored':
@@ -153,10 +179,9 @@ class Application:
                 _entry=ent
             )
 
-        denom = { 'win32': 120, 'darwin': 1 }[platform]
         _canvas.configure(yscrollcommand=_scroll.set)
         _canvas.bind('<Configure>', lambda event: _canvas.configure(scrollregion=_canvas.bbox('all')))
-        _canvas.bind_all('<MouseWheel>', lambda event: _canvas.yview_scroll(int(-1*(event.delta/denom)), "units"))
+        _canvas.bind_all('<MouseWheel>', lambda event: _canvas.yview_scroll(int(-1*(event.delta/SCROLL_DENOM)), "units"))
         _canvas.create_window((0, 0), window=_frame_inner, anchor='nw')
 
         self.widgets['chk_complextokens'] = Checkbutton(
@@ -166,6 +191,25 @@ class Application:
             command=partial(self.callbacks.toggle_complex, self)
         )
         self.widgets['chk_complextokens'].grid(row=0, column=1, padx=15, pady=(5, 0), sticky='nesw')
+## --------------------------------------------------------------------------------------------
+        tempo_frame = Frame(other_settings)
+        self.widgets['lbl_tempo'] = Label(
+            tempo_frame,
+            text='Tempo: ',
+            font=(self._font, 11)
+        )
+        self.widgets['lbl_tempo'].grid(row=0, column=0, sticky='nesw')
+
+        self.widgets['ent_tempo'] = Entry(
+            tempo_frame, 
+            width=4,
+            textvariable=self._settings['tempo']
+        )
+        self._settings['tempo'].trace('w', partial(self.callbacks.force_integer_input, self, 'tempo'))
+        self.widgets['ent_tempo'].grid(row=0, column=1, sticky='nesw')
+
+        tempo_frame.grid(row=1, column=1, padx=(15, 2), pady=(5, 0), sticky='nesw')
+## --------------------------------------------------------------------------------------------
 
         self.widgets['chk_conjoin'] = Checkbutton(
             other_settings,
@@ -176,11 +220,11 @@ class Application:
 
         self.widgets['chk_dynamic'] = Checkbutton(
             other_settings,
-            text='Generate random dynamic for each note',
+            text='Random dynamic per note',
             variable=self._settings['randomise_dynamic']
         )
         self.widgets['chk_dynamic'].grid(row=1, column=0, padx=15, pady=(5, 0), sticky='nesw')
-
+## --------------------------------------------------------------------------------------------
         voice_frame = Frame(other_settings)
         self.widgets['lbl_voices'] = Label(
             voice_frame,
@@ -191,15 +235,15 @@ class Application:
 
         self.widgets['ent_voices'] = Entry(
             voice_frame, 
+            width=3,
             textvariable=self._settings['voices']
         )
-        self._settings['voices'].trace('w', partial(self.callbacks.channel_entry, self))
+        self._settings['voices'].trace('w', partial(self.callbacks.force_integer_input, self, 'voices'))
 
-        self.widgets['ent_voices'].grid(row=0, column=1, sticky='nesw')
+        self.widgets['ent_voices'].grid(row=0, column=1, sticky='nsw')
 
         voice_frame.grid(row=2, column=0, padx=(15, 2), pady=(5, 0), sticky='nesw')
-        
-
+## --------------------------------------------------------------------------------------------
         self.widgets['btn_randomisesubstitutions'] = Button(
             other_settings, # _canvas
             text='Randomise all',
@@ -216,6 +260,8 @@ class Application:
         # self.widgets['btn_resetsubstitutions'].pack(side='right', anchor='s')
 
         #TODO: Put 'reset' and 'randomise' buttons in '_canvas', but not overlapping widgets already in there
+        #TODO: Add setting for one voice per line
+        #TODO: Add setting for time signature
 
         _frame.pack(fill='both', expand=True)
         _canvas.pack(side='left', fill='both', expand=True)
@@ -228,23 +274,30 @@ class Application:
     class callbacks:
         def convert(self, *args):
             data = self.widgets['text_main'][0].get('1.0', 'end')
-            tokens = data[:-1].split(self.delimiter)
-            tokens = list(filter(bool, tokens))
+            tempo = int(self._settings['tempo'].get())
+            mf_kwargs = dict(
+                tempo=90,
+                timesig=(4, 4),
+                keysig=(0, ''),
+            )
 
             if self._settings['complex_tokens'].get(): 
-                midi_data = self.callbacks.parse_complex_data(self, tokens)
-            else: 
+                lines = data.split('\n')
+                mf_kwargs, tokens = self.callbacks.parse_complex_data(self, lines)
+                midi_data = self.callbacks.parse_complex_tokens(self, tokens)
+            else:
+                tokens = data[:-1].split(self.delimiter)
+                tokens = list(filter(bool, tokens)) 
                 midi_data = self.callbacks.parse_basic_tokens(self, tokens)
 
             if midi_data:
-                create_midi_file(midi_data)
-
+                create_midi_file(midi_data, **mf_kwargs)
 
         def resize(self, event):
             self._width, self._height = event.width, event.height
         
-        def channel_entry(self, *args):
-            data = self._settings['voices'].get()
+        def force_integer_input(self, ent_id, *args):
+            data = self._settings[ent_id].get()
             def is_int(c):
                 try:
                     int(c)
@@ -253,40 +306,114 @@ class Application:
                     return False
             chars = filter(is_int, list(data))
             ndata = ''.join(chars)
-            self._settings['voices'].set(ndata)
+            self._settings[ent_id].set(ndata)
         
         def toggle_complex(self):
             if self._settings['complex_tokens'].get() == 1:
                 self.widgets['ent_voices'].configure(state='disabled')
                 self.widgets['chk_conjoin'].configure(state='disabled')
+                self.widgets['ent_tempo'].configure(state='disabled')
+                self.widgets['chk_dynamic'].configure(state='disabled')
             else:
                 self.widgets['ent_voices'].configure(state='enabled')
                 self.widgets['chk_conjoin'].configure(state='enabled')
+                self.widgets['ent_tempo'].configure(state='enabled')
+                self.widgets['chk_dynamic'].configure(state='enabled')
         
-        def parse_complex_data(self, tokens):
-            #? COMPLEX TOKEN STRUCTURE: NoteOctave/-:Channel:Duration
+        def parse_complex_data(self, lines):
+            mf_kwargs = dict()
+            tokens = list()
+            for line in filter(bool, map(str.strip, lines)):
+                if 'TEMPO' in line:
+                    try:
+                        mf_kwargs['tempo'] = int(line.split(":")[1].strip())
+                    except ValueError:
+                        messagebox.showerror(
+                            'Could not convert',
+                            'TEMPO marking must be a whole number.'
+                        )
+                elif 'TIMESIG' in line:
+                    try:
+                        t, b = list(map(int, str(line.split(":")[1].strip()).split('/')))
+                        mf_kwargs['timesig'] = (t, b//2)
+                    except ValueError:
+                        messagebox.showerror(
+                            'Could not convert',
+                            'TIMESIG marking is invalid. See help for examples of valid marking'
+                        )
+                elif 'KEYSIG' in line:
+                    try:
+                        key = str(line.split(":")[1].strip()).split("-")
+                        if len(key) == 1 and int(key[0]) == 0:
+                            mf_kwargs['keysig'] = (0, 'sharps', 'major')
+                        elif len(key) > 1:
+                            n, t, m = int(key[0]), key[1], key[2]
+                            mf_kwargs['keysig'] = (n, t, m)
+                    except ValueError:
+                        messagebox.showerror(
+                            'Could not convert',
+                            'KEYSIG marking is invalid. See help for examples of valid marking'
+                        )
+                elif 'INSTRUMENTS' in line or 'VOICES' in line:
+                    try:
+                        t = 'INSTRUMENTS' if 'INSTRUMENTS' in line else 'VOICES'
+                        instruments = list(map(str.strip, line.split(':')[1].split(',')))
+                        mf_kwargs['voices'] = instruments
+                    
+                    except:
+                        messagebox.showerror(
+                            'Could not convert',
+                            f'{t} marking is invalid. See help for examples of valid marking'
+                        )
+                else:
+                    line_tokens = line.split(self.delimiter)
+                    line_tokens = list(filter(bool, line_tokens))
+                    tokens += line_tokens
+
+            return mf_kwargs, tokens
+
+        def parse_complex_tokens(self, tokens):
             midi_data = defaultdict(list)
             volume = 75
 
             try:
                 for token in tokens:
-                    note, channel, duration = token.upper().split(':')
-                    channel, duration = int(channel), int(duration)
-                    pitch = convert_to_pitch(note, complex=True)
+                    #TODO: markings notated by [x] (eg. [mp] = mp, [>] = dim.)
+                    #DOING: chords (eg. 'e3+a2;1;4')
+                    note, channel, duration = token.upper().replace(';', ':').split(':')
+                    channel, duration = int(channel), float(duration)
+                    if note == '-': pitch = 'rest'
+                    elif '+' in note:
+                        time = 0 + sum([n['duration'] for n in midi_data[channel]])
+                        for _note in note.split('+'):
+                            pitch = convert_to_pitch(_note, complex=True)
+                            if self._settings['randomise_dynamic'].get():
+                                volume = randint(MINVOLUME, MAXVOLUME)
+                            midi_data[channel].append(
+                                dict(pitch=pitch, time=time, duration=duration, volume=volume)
+                            )
+                        continue
+                    else:
+                        pitch = convert_to_pitch(note, complex=True)
                     time = 0 + sum([n['duration'] for n in midi_data[channel]])
                     if self._settings['randomise_dynamic'].get():
                         volume = randint(MINVOLUME, MAXVOLUME)
                     midi_data[channel].append(
                         dict(pitch=pitch, time=time, duration=duration, volume=volume)
                     )
+                midi_data = {
+                    v:list(filter(lambda x: x['pitch'] != 'rest', midi_data[v])) 
+                    for v in midi_data.keys()
+                }
                 return midi_data
-
             except Exception as e:
-                messagebox.showerror(
-                    "Could not convert", 
-                    'The data entered does not follow the correct token syntax, and could not be converted'
-                )
-                print(e)
+                title = 'Could not convert'
+                if type(e) is ValueError and 'not enough values to unpack' in repr(e):
+                    message = 'The data entered does not follow the correct token syntax, and could not be converted. Perhaps you meant to turn off complex tokens?'
+                else:
+                    message = 'The data entered does not follow the correct token syntax, and could not be converted.'
+                messagebox.showerror(title, message)
+                print(type(e), e)
                 return None
 
 
@@ -328,11 +455,13 @@ class Application:
                                 nmidi_data[channel].append(note)
                     midi_data = nmidi_data
                 return midi_data
-            except:
-                messagebox.showerror(
-                    "Could not convert", 
-                    'The data entered is not valid, and could not be converted'
-                    )
+            except Exception as e:
+                title = 'Could not convert'
+                if type(e) is ValueError and 'is not in list' in repr(e):
+                    message = 'The data entered does not follow the correct token syntax, and could not be converted. Perhaps you meant to turn on complex tokens?'
+                else:
+                    message = 'The data entered does not follow the correct token syntax, and could not be converted.'
+                messagebox.showerror(title, message)
                 return None
 
 
@@ -344,7 +473,6 @@ class Application:
                 start = self.widgets['text_main'][0].index("sel.first")
                 end = self.widgets['text_main'][0].index("sel.last")
                 self.widgets['text_main'][0].delete(start, end)
-                self.widgets['text_main'][0].insert("insert", clipboard)
             except Exception as e:
                 pass
 
@@ -366,19 +494,34 @@ def convert_to_pitch(note_name, complex=False):
         enharm = ENHARMONICS[note_name]
         return ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'].index(enharm if enharm else note_name) + 60
     else:
-        #TODO: this \/
-        
+        pitch, octave = note_name[:-1], int(note_name[-1])
+        enharm = ENHARMONICS[pitch]
+        offset = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'].index(enharm if enharm else pitch)
+        return (12*(octave+1)) + offset
 
 
-def create_midi_file(data):
+def create_midi_file(data, **kwargs):
     mf = MIDIFile(1)
-    track, time, tempo = 0, 0, 90
-    mf.addTrackName(track, time, "Text2Midi")
-    mf.addTempo(track, time, tempo)
+    track, time = 0, 0
+    num_channels = len(data.keys())
+    mf.addTrackName(track, time, "")
+
+    mf.addTempo(track, time, kwargs['tempo'])
+    mf.addTimeSignature(track, time, *kwargs['timesig'], 24, 8)
+    keysig = (
+        kwargs['keysig'][0], 
+        FLATS if kwargs['keysig'][1]=='flats' else SHARPS,
+        MINOR if kwargs['keysig'][2]=='minor' else MAJOR
+    )
+    mf.addKeySignature(track, time, *keysig)
+    
+    if 'voices' in kwargs.keys():
+        for idx, prog in enumerate(reversed(kwargs['voices'])):
+            mf.addProgramChange(track, num_channels-(idx+1), time, PROGRAM_CODES[prog])
 
     for channel, line in data.items():
         for note in line:
-            mf.addNote(track, channel, note['pitch'], note['time'], note['duration'], note['volume'])
+            mf.addNote(track, num_channels-channel, note['pitch'], note['time'], note['duration'], note['volume'])
     
     with open("output.mid", 'wb') as outf:
         mf.writeFile(outf)
@@ -389,6 +532,23 @@ if __name__ == "__main__":
     __version__ = 'v0.1'
 
     MINVOLUME, MAXVOLUME = 30, 100
+    with open('assets//program_codes.json', 'rb') as program_codes:
+        PROGRAM_CODES = {
+            k.upper() : int(v)-1
+            for (k,v) in loadJSON(program_codes).items()
+            }
+
+    #TODO: write the help text \/
+    HELP_TEXT = '''
+    Complex Tokens:
+        Complex tokens allow the user to specify 
+    Merge adjacent:
+    Random dynamic per note:
+    Voice per line:
+    Voices:
+    Tempo:
+
+    '''
 
     VALIDNOTES = ['a', 'a#', 'bb', 'b', 'cb', 'b#', 'c', 'c#', 'db', 'd', 'd#', 'eb', 'e', 'fb', 'e#', 'f', 'f#', 'gb', 'g', 'g#', 'ab']
     SUBSTITUTABLES = defaultdict(str, {
@@ -409,14 +569,14 @@ if __name__ == "__main__":
         COLORS = {
             "WINDOW_BACKGROUND": '#cccccc',
             "TEXTCOLOR": 'black'
-
         }
+        SCROLL_DENOM = 120
     elif platform == "darwin":
         COLORS = {
             "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
             "TEXTCOLOR": 'systemTextColor'
-
         }
+        SCROLL_DENOM = 1
 
     application = Application(__version__)
     application.run()
