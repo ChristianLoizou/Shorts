@@ -40,6 +40,7 @@ class Application:
         self.window.tk.call('wm', 'iconphoto', self.window._w, PhotoImage(file=f'assets{sep}icon.png'))
         self.ipadx, self.ipady = 25, 25
         self._font = "Verdana" if "Verdana" in font.families() else None
+        self._cursor = 'text' if platform == 'darwin' else None
         self._fontsize = 18
         self._settings = {
             'complex_tokens': IntVar(value=0),
@@ -67,7 +68,7 @@ class Application:
         self.widgets['text_main'] = (
             CustomText(
                 self.window, 
-                cursor='text', 
+                cursor=self._cursor, 
                 font=(self._font, self._fontsize)
                 ),
             dict(row=0, column=0, columnspan=3, padx=15, pady=15, ipadx=self.ipadx, ipady=self.ipady, sticky='nsew')
@@ -278,7 +279,7 @@ class Application:
             mf_kwargs = dict(
                 tempo=90,
                 timesig=(4, 4),
-                keysig=(0, ''),
+                keysig=(0, '', 'major'),
             )
 
             if self._settings['complex_tokens'].get(): 
@@ -321,7 +322,11 @@ class Application:
                 self.widgets['chk_dynamic'].configure(state='enabled')
         
         def parse_complex_data(self, lines):
-            mf_kwargs = dict()
+            mf_kwargs = dict(
+                tempo=90,
+                timesig=(4, 4),
+                keysig=(0, '', 'major'),
+            )
             tokens = list()
             for line in filter(bool, map(str.strip, lines)):
                 if 'TEMPO' in line:
@@ -529,7 +534,7 @@ def create_midi_file(data, **kwargs):
 
 if __name__ == "__main__":
 
-    __version__ = 'v0.1'
+    __version__ = 'v1.0'
 
     MINVOLUME, MAXVOLUME = 30, 100
     with open('assets//program_codes.json', 'rb') as program_codes:
@@ -543,11 +548,15 @@ if __name__ == "__main__":
     Complex Tokens:
         Complex tokens allow the user to specify 
     Merge adjacent:
-    Random dynamic per note:
-    Voice per line:
-    Voices:
-    Tempo:
 
+    Random dynamic per note:
+
+    Voice per line:
+
+    Voices:
+
+    Tempo:
+        
     '''
 
     VALIDNOTES = ['a', 'a#', 'bb', 'b', 'cb', 'b#', 'c', 'c#', 'db', 'd', 'd#', 'eb', 'e', 'fb', 'e#', 'f', 'f#', 'gb', 'g', 'g#', 'ab']
