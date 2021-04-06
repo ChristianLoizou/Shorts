@@ -1,6 +1,6 @@
 # Text to Midi
 
-An application to take music in the form of text (ie. strings of note-names) and convert them to midi. Also works with linguistic text, ie. paragraphs from text. Note this is not a clone of [jwktje's 'LangoRhythm'](https://github.com/jwktje/langorhythm). This application takes note-names and converts them to midi. If a letter is not a valid note-name, it is substituted according to pre-defined rules - which can be edited by the user.
+An application to take music in the form of text (ie. strings of note-names) and convert them to midi. Also works with linguistic text, ie. paragraphs from text. Note this is not a clone of [jwktje's 'LangoRhythm'](https://github.com/jwktje/langorhythm). If a letter is not a valid note-name, it is substituted according to pre-defined rules - which can be edited by the user.
 
 The Python file of the latest release is *'/main.py'.* 
 The Windows executable of the latest release is *'/latest.exe'*.
