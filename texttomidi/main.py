@@ -565,7 +565,7 @@ def create_midi_file(data, expressions, **kwargs):
 
 if __name__ == "__main__":
 
-    __version__ = 'v1.0'
+    __version__ = 'v1.1'
 
     MINVOLUME, MAXVOLUME = 30, 100
     with open('assets//program_codes.json', 'rb') as program_codes:
@@ -608,8 +608,6 @@ if __name__ == "__main__":
     Tempo:
         This setting sets the tempo of the MIDI. Default tempo is 120.
         This setting is automatically disabled when using Complex Tokens.
-
-    Tempo:
 
     '''
 
