@@ -49,7 +49,7 @@ INSTRUMENTS: VIOLIN, CELLO, PIANO
 
 ```
 
-Note the optional 'flags' at the beginning of the file.
+Note the optional 'flags' at the beginning of the file, and that both ':' and ';' work to separate token-parts.
 
 **TEMPO**: Sets tempo (crotchet=). Defaults to crotchet = 120.
 
