@@ -55,6 +55,12 @@ Note the optional 'flags' at the beginning of the file, and that both ':' and ';
 
 **TIMESIG**: Sets the time signature of the file.
 
-**KEYSIG**: Defines the key signature of the file (WIP).
+**KEYSIG**: Defines the key signature of the file (*WIP*). The format for this flag is:
+
+```
+NUMBER-ACCIDENTALS-MODE
+```
+
+Some examples are A major -> `3-SHARPS-MAJOR`, C# minor -> `4-SHARPS-MINOR`, Bb minor -> `5-FLATS-MINOR`
 
 **INSTRUMENTS**: Defines the instruments in the file. A valid list of instrument names can be found [here](https://raw.githubusercontent.com/ChristianLoizou/Shorts/master/texttomidi/assets/program_codes.json). Command separated, and in order of top to bottom of music.
