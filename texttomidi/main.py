@@ -1,15 +1,32 @@
-
 from collections import defaultdict
 from functools import partial
 from json import load as loadJSON
 from midiutil.MidiFile import MIDIFile, SHARPS, FLATS, MAJOR, MINOR
 from os import path, sep
 from random import choice as ranchoice, randint
+from re import match as regex_match
 from sys import platform
 from tkinter import *
 from tkinter import font, messagebox
 from tkinter.ttk import Button, Checkbutton, Entry, Frame, Label, Scrollbar
 
+
+class Expression:
+    def __init__(self, track, time, text):
+        self.track, self.time, self.text = track, time, text
+
+    def __repr__(self):
+        return f"Expression: [text={self.text!r}, track={self.track}, time={self.time}]"
+    
+    def apply(self, midifile):
+        midifile.addText(self.track, self.time, self.text)
+
+#TODO: Refactor using OOP
+class Note:
+    def __init__(self, track, channel, pitch, time, duration, volume, annotation=None):
+        self.track, self.channel = track, channel
+        self.pitch, self.time, self.duration = pitch, time, duration
+        self.volume, self.annotation = volume, annotation
 
 class CustomText(Text):
     def __init__(self, *args, **kwargs):
@@ -105,8 +122,9 @@ class Application:
         except: pass
         self.help_popup = Toplevel(self.window)
         self.help_popup.title('Help')
-        self.help_popup.geometry('300x300')
-        self.help_popup.resizable(False, False)
+        # self.help_popup.geometry('500x500')
+        self.help_popup.minsize(600, 400)
+        # self.help_popup.resizable(False, False)
         self.help_popup.bind('<FocusOut>', lambda _: self.help_popup.destroy())
 
         _frame = Frame(self.help_popup, borderwidth=0)
@@ -173,7 +191,7 @@ class Application:
             ent.insert(0, subst)
             ent.bind('<FocusIn>', partial(entry_focused, ent))
             ent.bind('<FocusOut>', partial(entry_unfocused, ent, char))
-            lbl.grid(row=idx//2, column=(idx%2)*2, padx=2, pady=2, sticky='nsew')
+            lbl.grid(row=idx//2, column=(idx%2)*2,     padx=2, pady=2, sticky='nsew')
             ent.grid(row=idx//2, column=((idx%2)*2)+1, padx=2, pady=2, sticky='nsew')
             self._substitution_widgets[char] = dict(
                 _label=lbl,
@@ -281,18 +299,19 @@ class Application:
                 timesig=(4, 4),
                 keysig=(0, '', 'major'),
             )
+            expressions = list()
 
             if self._settings['complex_tokens'].get(): 
                 lines = data.split('\n')
                 mf_kwargs, tokens = self.callbacks.parse_complex_data(self, lines)
-                midi_data = self.callbacks.parse_complex_tokens(self, tokens)
+                midi_data, expressions = self.callbacks.parse_complex_tokens(self, tokens)
             else:
                 tokens = data[:-1].split(self.delimiter)
                 tokens = list(filter(bool, tokens)) 
                 midi_data = self.callbacks.parse_basic_tokens(self, tokens)
 
             if midi_data:
-                create_midi_file(midi_data, **mf_kwargs)
+                create_midi_file(midi_data, expressions, **mf_kwargs)
 
         def resize(self, event):
             self._width, self._height = event.width, event.height
@@ -379,38 +398,47 @@ class Application:
 
         def parse_complex_tokens(self, tokens):
             midi_data = defaultdict(list)
+            expressions = list()
             volume = 75
 
             try:
                 for token in tokens:
-                    #TODO: markings notated by [x] (eg. [mp] = mp, [>] = dim.)
-                    #DOING: chords (eg. 'e3+a2;1;4')
-                    note, channel, duration = token.upper().replace(';', ':').split(':')
-                    channel, duration = int(channel), float(duration)
-                    if note == '-': pitch = 'rest'
-                    elif '+' in note:
-                        time = 0 + sum([n['duration'] for n in midi_data[channel]])
-                        for _note in note.split('+'):
-                            pitch = convert_to_pitch(_note, complex=True)
-                            if self._settings['randomise_dynamic'].get():
-                                volume = randint(MINVOLUME, MAXVOLUME)
-                            midi_data[channel].append(
-                                dict(pitch=pitch, time=time, duration=duration, volume=volume)
-                            )
+                    token = token.replace(';', ':')
+
+                    if regex_match(r'\[.*\]:\d+', token) is not None:
+                        text, track = token.split(':')
+                        time = 0 + sum([n['duration'] for n in midi_data[int(track)]])
+                        expressions.append(
+                            Expression(int(track)-1, time, text[1:-1])
+                        )
                         continue
                     else:
-                        pitch = convert_to_pitch(note, complex=True)
-                    time = 0 + sum([n['duration'] for n in midi_data[channel]])
-                    if self._settings['randomise_dynamic'].get():
-                        volume = randint(MINVOLUME, MAXVOLUME)
-                    midi_data[channel].append(
-                        dict(pitch=pitch, time=time, duration=duration, volume=volume)
-                    )
+                        note, channel, duration = token.upper().split(':')
+                        channel, duration = int(channel), float(duration)
+                        if note == '-': pitch = 'rest'
+                        elif '+' in note:
+                            time = 0 + sum([n['duration'] for n in midi_data[channel]])
+                            for _note in note.split('+'):
+                                pitch = convert_to_pitch(_note, complex=True)
+                                if self._settings['randomise_dynamic'].get():
+                                    volume = randint(MINVOLUME, MAXVOLUME)
+                                midi_data[channel].append(
+                                    dict(pitch=pitch, time=time, duration=duration, volume=volume)
+                                )
+                            continue
+                        else:
+                            pitch = convert_to_pitch(note, complex=True)
+                        time = 0 + sum([n['duration'] for n in midi_data[channel]])
+                        if self._settings['randomise_dynamic'].get():
+                            volume = randint(MINVOLUME, MAXVOLUME)
+                        midi_data[channel].append(
+                            dict(pitch=pitch, time=time, duration=duration, volume=volume)
+                        )
                 midi_data = {
-                    v:list(filter(lambda x: x['pitch'] != 'rest', midi_data[v])) 
+                    v : list(filter(lambda x: x['pitch'] != 'rest', midi_data[v]))
                     for v in midi_data.keys()
                 }
-                return midi_data
+                return midi_data, expressions
             except Exception as e:
                 title = 'Could not convert'
                 if type(e) is ValueError and 'not enough values to unpack' in repr(e):
@@ -418,8 +446,8 @@ class Application:
                 else:
                     message = 'The data entered does not follow the correct token syntax, and could not be converted.'
                 messagebox.showerror(title, message)
-                print(type(e), e)
-                return None
+                raise e
+                return None, None
 
 
         def parse_basic_tokens(self, tokens):
@@ -505,28 +533,31 @@ def convert_to_pitch(note_name, complex=False):
         return (12*(octave+1)) + offset
 
 
-def create_midi_file(data, **kwargs):
-    mf = MIDIFile(1)
-    track, time = 0, 0
-    num_channels = len(data.keys())
-    mf.addTrackName(track, time, "")
-
-    mf.addTempo(track, time, kwargs['tempo'])
-    mf.addTimeSignature(track, time, *kwargs['timesig'], 24, 8)
-    keysig = (
-        kwargs['keysig'][0], 
-        FLATS if kwargs['keysig'][1]=='flats' else SHARPS,
-        MINOR if kwargs['keysig'][2]=='minor' else MAJOR
-    )
-    mf.addKeySignature(track, time, *keysig)
+def create_midi_file(data, expressions, **kwargs):
+    num_tracks = len(data.keys())
+    mf = MIDIFile(num_tracks)
+    channel, time = 0, 0
+    for track in range(num_tracks):
+        mf.addTrackName(track, time, "")    
+        mf.addTempo(track, time, kwargs['tempo'])
+        mf.addTimeSignature(track, time, *kwargs['timesig'], 24, 8)
+        keysig = (
+            kwargs['keysig'][0], 
+            FLATS if kwargs['keysig'][1]=='flats' else SHARPS,
+            MINOR if kwargs['keysig'][2]=='minor' else MAJOR
+        )
+        mf.addKeySignature(track, time, *keysig)
     
     if 'voices' in kwargs.keys():
         for idx, prog in enumerate(reversed(kwargs['voices'])):
-            mf.addProgramChange(track, num_channels-(idx+1), time, PROGRAM_CODES[prog])
+            mf.addProgramChange(num_tracks-(idx+1), 0, time, PROGRAM_CODES[prog])
 
-    for channel, line in data.items():
+    for track, line in data.items():
         for note in line:
-            mf.addNote(track, num_channels-channel, note['pitch'], note['time'], note['duration'], note['volume'])
+            mf.addNote(num_tracks-track, 0, note['pitch'], note['time'], note['duration'], note['volume'])
+
+    for expression in expressions:
+        expression.apply(mf)
     
     with open("output.mid", 'wb') as outf:
         mf.writeFile(outf)
@@ -543,20 +574,43 @@ if __name__ == "__main__":
             for (k,v) in loadJSON(program_codes).items()
             }
 
-    #TODO: write the help text \/
-    HELP_TEXT = '''
+    #TODO: write the help text \/ (include a link to list of instruments usable according to GM standards)
+    HELP_TEXT = f'''
+    
     Complex Tokens:
-        Complex tokens allow the user to specify 
+        Complex tokens allow the user to include lots of extra information about the nstruments,
+        notes and overall piece in general. 
+    
     Merge adjacent:
-
+        With this setting active, if two notes of equal pitch are written adjacent to each other,
+        they will be marged into one note of greater length. This allows the user to write
+        lines with notes of different length without using complex tokens.
+        This setting is automatically disabled when using Complex Tokens.
+    
     Random dynamic per note:
-
+        If this setting is disabled, every note is set to be played at the same volume (75%).
+        Enabling this setting will assign each note a random volume between
+        {MINVOLUME}% - {MAXVOLUME}%.
+        This setting is automatically disabled when using Complex Tokens.
+    
     Voice per line:
-
+        Enabling this setting will allow the user to write each part's line on a seperate
+        line of text. If this setting is disabled, all notes must be written on one line
+        and the application will cycle through the voices in order of top-bottom.
+        This setting is automatically disabled when using Complex Tokens.
+    
     Voices:
+        This setting determines how many parts will be written in the MIDI file. If you have
+        the 'voice per line' setting enabled, this is also the number of lines that will be
+        used when creating the MIDI file.
+        This setting is automatically disabled when using Complex Tokens.
+    
+    Tempo:
+        This setting sets the tempo of the MIDI. Default tempo is 120.
+        This setting is automatically disabled when using Complex Tokens.
 
     Tempo:
-        
+
     '''
 
     VALIDNOTES = ['a', 'a#', 'bb', 'b', 'cb', 'b#', 'c', 'c#', 'db', 'd', 'd#', 'eb', 'e', 'fb', 'e#', 'f', 'f#', 'gb', 'g', 'g#', 'ab']
