@@ -453,6 +453,7 @@ class Application:
 
 
         def parse_basic_tokens(self, tokens):
+            tokens = list(''.join(tokens))
             midi_data = dict()
             try:
                 nvoices = int(self._settings['voices'].get())
@@ -465,16 +466,18 @@ class Application:
 
             try:
                 for idx in range(len(tokens)):
-                    channel = idx%nvoices
-                    pitch = convert_to_pitch(tokens[idx].capitalize(), complex=False)
-                    time = 0 + sum([n['duration'] for n in midi_data[channel]])
-                    duration = 1
-                    if self._settings['randomise_dynamic'].get():
-                        volume = randint(MINVOLUME, MAXVOLUME)
+                    try:
+                        channel = idx%nvoices
+                        pitch = convert_to_pitch(tokens[idx].capitalize(), complex=False)
+                        time = 0 + sum([n['duration'] for n in midi_data[channel]])
+                        duration = 1
+                        if self._settings['randomise_dynamic'].get():
+                            volume = randint(MINVOLUME, MAXVOLUME)
 
-                    midi_data[channel].append(
-                        dict(pitch=pitch, time=time, duration=duration, volume=volume)
-                    )
+                        midi_data[channel].append(
+                            dict(pitch=pitch, time=time, duration=duration, volume=volume)
+                        )
+                    except: pass
                 
                 nmidi_data = dict()
                 if self._settings['conjoin'].get():
@@ -556,7 +559,7 @@ def create_midi_file(data, expressions, **kwargs):
 
     for track, line in data.items():
         for note in line:
-            mf.addNote(num_tracks-track, 0, note['pitch'], note['time'], note['duration'], note['volume'])
+            mf.addNote(num_tracks-track-1, 0, note['pitch'], note['time'], note['duration'], note['volume'])
 
     for expression in expressions:
         expression.apply(mf)
@@ -567,7 +570,7 @@ def create_midi_file(data, expressions, **kwargs):
 
 if __name__ == "__main__":
 
-    __version__ = 'v1.2'
+    __version__ = 'v1.3'
 
     MINVOLUME, MAXVOLUME = 30, 100
     with open('assets//program_codes.json', 'rb') as program_codes:
