@@ -64,3 +64,32 @@ NUMBER-ACCIDENTALS-MODE
 Some examples are A major -> `3-SHARPS-MAJOR`, C# minor -> `4-SHARPS-MINOR`, Bb minor -> `5-FLATS-MINOR`
 
 **INSTRUMENTS**: Defines the instruments in the file. A valid list of instrument names can be found [here](https://raw.githubusercontent.com/ChristianLoizou/Shorts/master/texttomidi/assets/program_codes.json). Comma separated, and in order of top to bottom of music. Note, you only need the name, not the ID number of the instrument. 
+
+
+**Merge adjacent**:
+    With this setting active, if two notes of equal pitch are written adjacent to each other
+    they will be marged into one note of greater length. This allows the user to write
+    lines with notes of different length without using complex tokens.
+    This setting is automatically disabled when using Complex Tokens.
+
+**Random dynamic per note**:
+    If this setting is disabled, every note is set to be played at the same volume (75%).
+    Enabling this setting will assign each note a random volume between the minimum and maximum volume 
+    (see in-app help menu for these values)
+    This setting is automatically disabled when using Complex Tokens.
+
+**Voice per line**:
+    Enabling this setting will allow the user to write each part\'s line on a seperate
+    line of text. If this setting is disabled, all notes must be written on one line
+    and the application will cycle through the voices in order of top-bottom.
+    This setting is automatically disabled when using Complex Tokens.
+
+**Voices**:
+    This setting determines how many parts will be written in the MIDI file. If you have
+    the \'voice per line\' setting enabled, this is also the number of lines that will be
+    used when creating the MIDI file
+    This setting is automatically disabled when using Complex Tokens.
+
+**Tempo**:
+    This setting sets the tempo of the MIDI. Default tempo is 120.
+    This setting is automatically disabled when using Complex Tokens.
