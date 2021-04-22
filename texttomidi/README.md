@@ -68,7 +68,6 @@ Some examples are A major -> `3-SHARPS-MAJOR`, C# minor -> `4-SHARPS-MINOR`, Bb 
 
 ### Settings mutually exclusive to Complex Tokenry
 
-
 **Merge adjacent**:
     With this setting active, if two notes of equal pitch are written adjacent to each other
     they will be marged into one note of greater length. This allows the user to write
