@@ -132,7 +132,9 @@ class Application:
         _scroll = Scrollbar(_frame, orient='vertical', command=_canvas.yview)
         _frame_inner = Frame(_canvas, borderwidth=0)
 
-        Message(_frame_inner, text=HELP_TEXT).pack(fill='both', expand=True)
+        # Message(_frame_inner, text=HELP_TEXT).pack(fill='both', expand=True)
+        for line, kwargs, padkwargs in HELP_TEXT:
+            Label(_frame_inner, text=line, **kwargs).pack(anchor='w', padx=25, expand=True, **padkwargs)
 
         _canvas.configure(yscrollcommand=_scroll.set)
         _canvas.bind('<Configure>', lambda event: _canvas.configure(scrollregion=_canvas.bbox('all')))
@@ -565,7 +567,7 @@ def create_midi_file(data, expressions, **kwargs):
 
 if __name__ == "__main__":
 
-    __version__ = 'v1.1'
+    __version__ = 'v1.2'
 
     MINVOLUME, MAXVOLUME = 30, 100
     with open('assets//program_codes.json', 'rb') as program_codes:
@@ -574,42 +576,45 @@ if __name__ == "__main__":
             for (k,v) in loadJSON(program_codes).items()
             }
 
-    #TODO: write the help text \/ (include a link to list of instruments usable according to GM standards)
-    HELP_TEXT = f'''
-    
-    Complex Tokens:
-        Complex tokens allow the user to include lots of extra information about the nstruments,
-        notes and overall piece in general. 
-    
-    Merge adjacent:
-        With this setting active, if two notes of equal pitch are written adjacent to each other,
-        they will be marged into one note of greater length. This allows the user to write
-        lines with notes of different length without using complex tokens.
-        This setting is automatically disabled when using Complex Tokens.
-    
-    Random dynamic per note:
-        If this setting is disabled, every note is set to be played at the same volume (75%).
-        Enabling this setting will assign each note a random volume between
-        {MINVOLUME}% - {MAXVOLUME}%.
-        This setting is automatically disabled when using Complex Tokens.
-    
-    Voice per line:
-        Enabling this setting will allow the user to write each part's line on a seperate
-        line of text. If this setting is disabled, all notes must be written on one line
-        and the application will cycle through the voices in order of top-bottom.
-        This setting is automatically disabled when using Complex Tokens.
-    
-    Voices:
-        This setting determines how many parts will be written in the MIDI file. If you have
-        the 'voice per line' setting enabled, this is also the number of lines that will be
-        used when creating the MIDI file.
-        This setting is automatically disabled when using Complex Tokens.
-    
-    Tempo:
-        This setting sets the tempo of the MIDI. Default tempo is 120.
-        This setting is automatically disabled when using Complex Tokens.
-
-    '''
+    HELP_TEXT = [
+    ('Complex Tokens:', {'font': (None, 18)}, {}),
+    ('    Complex tokens allow the user to include lots of extra information about the instruments,', {}, {}),
+    ('    notes and overall piece in general. The format for a complex token is:', {}, {}),
+    ('        NOTE/NOTES:VOICE:DURATION', {'font': (None, 11, 'bold')}, {'pady': (7, 7)}),
+    ('        or', {}, {}),
+    ('        -:VOICE:DURATION', {'font': (None, 11, 'bold')}, {'pady': (7, 7)}),
+    ('        or', {}, {}),
+    ('        [TEXT]:VOICE', {'font': (None, 11, 'bold')}, {'pady': (7, 7)}),
+    ('    A Note is any valid pitch letter (including ones that can be substituted) followed by', {}, {}),
+    ('    a valid octave number (0-7).', {}, {}),
+    ('    You can create chords by \'adding\' notes. (See below for example)', {}, {}),
+    ('    The Voice is always a number. When listing instruments (see below), the order in which ', {}, {}),
+    ('    the instruments are listed is the order (top to bottom) they will appear on the score', {}, {}),
+    ('    ', {}, {}),
+    ('Merge adjacent:', {'font': (None, 18)}, {}),
+    ('    With this setting active, if two notes of equal pitch are written adjacent to each other,', {}, {}),
+    ('    they will be marged into one note of greater length. This allows the user to write', {}, {}),
+    ('    lines with notes of different length without using complex tokens.', {}, {}),
+    ('    This setting is automatically disabled when using Complex Tokens.', {}, {'pady': (0, 15)}),
+    ('Random dynamic per note:', {'font': (None, 18)}, {}),
+    ('    If this setting is disabled, every note is set to be played at the same volume (75%).', {}, {}),
+    ('    Enabling this setting will assign each note a random volume between', {}, {}),
+    (f'    {MINVOLUME}% - {MAXVOLUME}%.', {}, {}),
+    ('    This setting is automatically disabled when using Complex Tokens.', {}, {'pady': (0, 15)}),
+    ('Voice per line:', {'font': (None, 18)}, {}),
+    ('    Enabling this setting will allow the user to write each part\'s line on a seperate', {}, {}),
+    ('    line of text. If this setting is disabled, all notes must be written on one line', {}, {}),
+    ('    and the application will cycle through the voices in order of top-bottom.', {}, {}),
+    ('    This setting is automatically disabled when using Complex Tokens.', {}, {'pady': (0, 15)}),
+    ('Voices:', {'font': (None, 18)}, {}), 
+    ('    This setting determines how many parts will be written in the MIDI file. If you have', {}, {}),
+    ('    the \'voice per line\' setting enabled, this is also the number of lines that will be', {}, {}),
+    ('    used when creating the MIDI file.', {}, {}),
+    ('    This setting is automatically disabled when using Complex Tokens.', {}, {'pady': (0, 15)}),
+    ('Tempo:', {'font': (None, 18)}, {}),
+    ('    This setting sets the tempo of the MIDI. Default tempo is 120.', {}, {}),   
+    ('    This setting is automatically disabled when using Complex Tokens.', {}, {'pady': (0, 15)})
+    ]
 
     VALIDNOTES = ['a', 'a#', 'bb', 'b', 'cb', 'b#', 'c', 'c#', 'db', 'd', 'd#', 'eb', 'e', 'fb', 'e#', 'f', 'f#', 'gb', 'g', 'g#', 'ab']
     SUBSTITUTABLES = defaultdict(str, {
