@@ -244,7 +244,7 @@ def apply_chord(chord, key):
 
 if __name__ == '__main__':
     
-    __version__ = '0.0.1a'
+    __version__ = '0.1'
     
     ACCIDENTALS = 'flats'
     BEATS = 8
