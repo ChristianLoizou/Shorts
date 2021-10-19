@@ -228,7 +228,6 @@ class Application(Tk):
         self.quit()
         
     def execute(self):
-        
         generated_data = list() 
         key = self.SETTINGS['key'].get()
         max_repetitions = self.SETTINGS['max_repetitions'].get()
