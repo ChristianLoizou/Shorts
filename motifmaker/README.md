@@ -11,3 +11,5 @@ For all releases please see 'exes', 'apps' or 'pys' folders.
 ## Todo
 * Add an application icon
 * Change the application run name from 'main'
+* Add settings for mode, maximum number of repetitions per chord
+* Add dynamic font size for output
