@@ -1,5 +1,6 @@
 import random, pyperclip
 from functools import partial
+from os import path
 from tkinter import *
 from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Style
 
@@ -31,7 +32,6 @@ class Application(Tk):
             'mode': StringVar(self, 'octatonic_tone'),
             'num_voices': StringVar(self, '4')
         }
-        # self.setting_setup()
         self.add_widgets()
     
     def add_widgets(self):
@@ -151,6 +151,7 @@ class Application(Tk):
         
     
     def change_setting(self, setting, value):
+        global NOTES
         self.SETTINGS[setting].set(value)
         if setting == 'accidental_type':
             acc_scale = SCALES[value]
@@ -244,7 +245,7 @@ def apply_chord(chord, key):
 
 if __name__ == '__main__':
     
-    __version__ = '0.1'
+    __version__ = '0.2'
 
     try:
         from application_update import execute_update
@@ -256,7 +257,7 @@ if __name__ == '__main__':
 
     MAX_REPETITION = 1
     MODE = MODES['octatonic_tone']
-    NOTES = SCALES[ACCIDENTALS]
+    NOTES = SCALES['sharps']
     
     app = Application(__version__)
     app.after(500, app.focus_force)
