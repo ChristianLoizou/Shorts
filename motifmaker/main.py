@@ -245,15 +245,19 @@ def apply_chord(chord, key):
 if __name__ == '__main__':
     
     __version__ = '0.1'
-    
-    ACCIDENTALS = 'flats'
-    BEATS = 8
-    KEY = 'C'
+
+    try:
+        from application_update import execute_update
+        if execute_update('motifmaker', __version__, path.basename(__file__)):
+            exit()
+
+    except ModuleNotFoundError:
+        pass
+
     MAX_REPETITION = 1
     MODE = MODES['octatonic_tone']
     NOTES = SCALES[ACCIDENTALS]
-    VOICES = (4, 5)
- 
+    
     app = Application(__version__)
     app.after(500, app.focus_force)
     app.mainloop()
