@@ -11,4 +11,3 @@ For all releases please see 'exes', 'apps' or 'pys' folders.
 ## Todo
 * Add an application icon
 * Change the application run name from 'main'
-  
