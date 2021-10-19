@@ -10,12 +10,13 @@ print("\nHave you updated the version number in 'main.py'?\n\n")
 
 chdir('..')
 with open("VERSION_DATA", 'r') as version_data_file:
-    version_data = dict(map(lambda l: l.replace(
-        "\n", '').split(":"), version_data_file.readlines()))
+    version_data = dict(map(
+        lambda l: l.replace("\n", '').split(":"), 
+        version_data_file.readlines()
+        ))
 
 last_version = version_data[PROJECT_NAME]
-curr_version = input(
-    f"Last version number was {last_version!r}\nEnter new version number: ").replace('v', '')
+curr_version = input(f"Last version number was {last_version!r}\nEnter new version number: ").replace('v', '')
 
 with open("VERSION_DATA", 'w') as version_data_file:
     for l in version_data.items():
@@ -38,6 +39,7 @@ if platform == 'win32':
         rmtree(directory)
     remove('main.spec')
 elif platform == 'darwin':
+    system(f'cp main.py pys{sep}v{curr_version}.py')
     system(f'cp -r assets asset_backups{sep}v{curr_version}{sep}assets')
     system(f'cp application_update.py asset_backups{sep}v{curr_version}{sep}application_update.py')
     DEPENDENCIES = ['assets', 'application_update.py']
