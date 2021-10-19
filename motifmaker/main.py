@@ -3,7 +3,7 @@ from functools import partial
 from itertools import chain
 from os import path
 from tkinter import *
-from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Style
+from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Spinbox, Style
 
 
 DEFAULTS = {
@@ -138,12 +138,12 @@ class Application(Tk):
                 text='The mode using which the motif should be generated',
                 font=(None, 11)
             ),
-            'max_repetitions_text': Entry(
+            'max_repetitions_spin': Spinbox(
                 self.settings_frames['max_repetitions'],
+                from_=0, to=12, wrap=True,
                 textvariable=self.SETTINGS['max_repetitions'],
-                validate='all',
-                validatecommand=(self.validate_entry, 'max_repetitions', '%P', '%V', '1'),
-                width=2
+                command=partial(self.change_setting, 'max_repetitions', None),
+                width=1
             ),
             'max_repetitions_lbl': Label(
                 self.settings_frames['max_repetitions'], 
@@ -175,7 +175,7 @@ class Application(Tk):
         
         mode_menu = Menu(self.settings_widgets['mode_menu'], tearoff=False)
         for mode in MODES:
-            label = mode.replace('-', '').capitalize()
+            label = mode.replace('_', ' ').capitalize()
             mode_menu.add_radiobutton(
                 label=label, 
                 value=mode,
@@ -195,7 +195,7 @@ class Application(Tk):
     
     def change_setting(self, setting, value):
         global NOTES
-        self.SETTINGS[setting].set(value)
+        if value: self.SETTINGS[setting].set(value)
         if setting == 'accidental_type':
             acc_scale = SCALES[value]
             self.settings_widgets['accidental_type_menu'].configure(text=value.capitalize())
@@ -212,6 +212,8 @@ class Application(Tk):
             self.SETTINGS['key'].set(enharm_equiv)
             self.settings_widgets['key_menu'].configure(text=enharm_equiv)
             NOTES = SCALES[self.SETTINGS['accidental_type'].get()]
+        elif setting == 'max_repetitions':
+            self.SETTINGS['max_repetitions'].set(self.settings_widgets['max_repetitions_spin'].get())
         elif setting == 'mode':
             self.settings_widgets['mode_menu'].configure(text=value.capitalize())
         elif setting == 'key':
@@ -274,9 +276,7 @@ def validate_entry(*args, **kwargs):
 
 def generate_chord(voices, mode, max_repetitions):
     chord = dict()
-    if voices > (len(mode)*max_repetitions):
-        print('Changing max_repetitions')
-        max_repetitions = int(voices / len(mode)) + 1
+    if voices > (len(mode)*max_repetitions): max_repetitions = int(voices / len(mode)) + 1
     picking = list(chain(*[[tone,]*max_repetitions for tone in mode]))
     random.shuffle(picking)
     for vn in range(voices): chord[vn+1] = picking.pop()
@@ -291,7 +291,7 @@ def apply_chord(chord, key):
 
 if __name__ == '__main__':
     
-    __version__ = '0.2'
+    __version__ = '0.3'
 
     try:
         from application_update import execute_update
