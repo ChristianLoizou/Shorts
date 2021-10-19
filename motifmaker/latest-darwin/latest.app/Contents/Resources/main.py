@@ -1,9 +1,17 @@
 import random, pyperclip
 from functools import partial
+from itertools import chain
 from os import path
 from tkinter import *
-from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Style
+from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Spinbox, Style
 
+
+DEFAULTS = {
+    'accidental_type'  : 'sharps',
+    'mode': 'major',
+    'max_repetitions': 1,
+    'motif_length': 8
+}
 
 MODES = {
         'major': [0, 2, 4, 5, 7, 9, 11],
@@ -17,6 +25,8 @@ SCALES = {
         'flats': ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
     }
 
+NOTES = SCALES[DEFAULTS['accidental_type']]
+
 class Application(Tk):
     def __init__(self, version, *args, **kwargs):
         super(Application, self).__init__(*args, **kwargs)
@@ -25,11 +35,11 @@ class Application(Tk):
         self.resizable(False, False)
         self.validate_entry = self.register(validate_entry)
         self.SETTINGS = {
-            'accidental_type': StringVar(self, 'sharps'),
-            'motif_length': IntVar(self, 8),
+            'accidental_type': StringVar(self, DEFAULTS['accidental_type']),
+            'motif_length': IntVar(self, DEFAULTS['motif_length']),
             'key': StringVar(self, 'C'),
-            'max_repetitions': IntVar(self, 1),
-            'mode': StringVar(self, 'octatonic_tone'),
+            'max_repetitions': IntVar(self, DEFAULTS['max_repetitions']),
+            'mode': StringVar(self, DEFAULTS['mode']),
             'num_voices': StringVar(self, '4')
         }
         self.add_widgets()
@@ -71,7 +81,9 @@ class Application(Tk):
             'motif_length': LabelFrame(self.settings_window, text='Motif length'),
             'num_voices': LabelFrame(self.settings_window, text='Number of voices'),
             'accidental_type': LabelFrame(self.settings_window, text='Accidental type'),
-            'key': LabelFrame(self.settings_window, text='Key')
+            'key': LabelFrame(self.settings_window, text='Key'),
+            'mode': LabelFrame(self.settings_window, text='Mode'),
+            'max_repetitions': LabelFrame(self.settings_window, text='Maximum repetitions')
         }
         
         self.settings_widgets = {
@@ -116,7 +128,28 @@ class Application(Tk):
                 self.settings_frames['key'], 
                 text='The key in which the motif should be generated',
                 font=(None, 11)
-            )
+            ),
+            'mode_menu': Menubutton(
+                self.settings_frames['mode'],
+                text=self.SETTINGS['mode'].get().capitalize()
+            ),
+            'mode_lbl': Label(
+                self.settings_frames['mode'], 
+                text='The mode using which the motif should be generated',
+                font=(None, 11)
+            ),
+            'max_repetitions_spin': Spinbox(
+                self.settings_frames['max_repetitions'],
+                from_=0, to=12, wrap=True,
+                textvariable=self.SETTINGS['max_repetitions'],
+                command=partial(self.change_setting, 'max_repetitions', None),
+                width=1
+            ),
+            'max_repetitions_lbl': Label(
+                self.settings_frames['max_repetitions'], 
+                text='The maximum number of note repetitions allowed per chord',
+                font=(None, 11)
+            ),
         }
 
         accidental_types_menu = Menu(self.settings_widgets['accidental_type_menu'], tearoff=False)
@@ -128,6 +161,7 @@ class Application(Tk):
                 variable=self.SETTINGS['accidental_type'],
                 command=partial(self.change_setting, 'accidental_type', value)
             )
+        self.settings_widgets['accidental_type_menu']['menu'] = accidental_types_menu
         
         key_menu = Menu(self.settings_widgets['key_menu'], tearoff=False)
         for label in SCALES['sharps']:
@@ -137,9 +171,18 @@ class Application(Tk):
                 variable=self.SETTINGS['key'],
                 command=partial(self.change_setting, 'key', label)
             )
-        
         self.settings_widgets['key_menu']['menu'] = key_menu
-        self.settings_widgets['accidental_type_menu']['menu'] = accidental_types_menu
+        
+        mode_menu = Menu(self.settings_widgets['mode_menu'], tearoff=False)
+        for mode in MODES:
+            label = mode.replace('_', ' ').capitalize()
+            mode_menu.add_radiobutton(
+                label=label, 
+                value=mode,
+                variable=self.SETTINGS['mode'],
+                command=partial(self.change_setting, 'mode', mode)
+            )
+        self.settings_widgets['mode_menu']['menu'] = mode_menu
         
         for setting in self.settings_widgets.values():
             setting.pack(expand=True, fill='both')
@@ -152,7 +195,7 @@ class Application(Tk):
     
     def change_setting(self, setting, value):
         global NOTES
-        self.SETTINGS[setting].set(value)
+        if value: self.SETTINGS[setting].set(value)
         if setting == 'accidental_type':
             acc_scale = SCALES[value]
             self.settings_widgets['accidental_type_menu'].configure(text=value.capitalize())
@@ -169,6 +212,10 @@ class Application(Tk):
             self.SETTINGS['key'].set(enharm_equiv)
             self.settings_widgets['key_menu'].configure(text=enharm_equiv)
             NOTES = SCALES[self.SETTINGS['accidental_type'].get()]
+        elif setting == 'max_repetitions':
+            self.SETTINGS['max_repetitions'].set(self.settings_widgets['max_repetitions_spin'].get())
+        elif setting == 'mode':
+            self.settings_widgets['mode_menu'].configure(text=value.capitalize())
         elif setting == 'key':
             self.settings_widgets['key_menu'].configure(text=value)
         return
@@ -229,11 +276,10 @@ def validate_entry(*args, **kwargs):
 
 def generate_chord(voices, mode, max_repetitions):
     chord = dict()
-    for vn in range(voices):
-        nv = random.choice(mode)
-        while list(chord.values()).count(nv) > max_repetitions:
-            nv = random.choice(mode)
-        chord[vn+1] = nv
+    if voices > (len(mode)*max_repetitions): max_repetitions = int(voices / len(mode)) + 1
+    picking = list(chain(*[[tone,]*max_repetitions for tone in mode]))
+    random.shuffle(picking)
+    for vn in range(voices): chord[vn+1] = picking.pop()
     return chord
     
 def apply_chord(chord, key):
@@ -245,7 +291,7 @@ def apply_chord(chord, key):
 
 if __name__ == '__main__':
     
-    __version__ = '0.2'
+    __version__ = '0.3'
 
     try:
         from application_update import execute_update
@@ -253,11 +299,7 @@ if __name__ == '__main__':
             exit()
 
     except ModuleNotFoundError:
-        pass
-
-    MAX_REPETITION = 1
-    MODE = MODES['octatonic_tone']
-    NOTES = SCALES['sharps']
+        pass    
     
     app = Application(__version__)
     app.after(500, app.focus_force)
