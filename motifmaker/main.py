@@ -3,6 +3,7 @@ from functools import partial
 from itertools import chain
 from os import path, sep
 from tkinter import *
+from tkinter import messagebox
 from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Spinbox, Style
 
 
@@ -73,6 +74,7 @@ class Application(Tk):
         self.mainframe.pack(anchor='center')
     
     def settings_popup(self):
+        messagebox.showinfo(title="WiP", message="Limited settings are available as of yet. More are coming soon! Stay tuned...")
         self.settings_window = Toplevel()
         self.settings_window.title("Settings")
         self.settings_window.resizable(False, False)
@@ -193,6 +195,7 @@ class Application(Tk):
         self.settings_window.mainloop()
         self.settings_window.grab_set()
         
+        
     
     def change_setting(self, setting, value):
         global NOTES
@@ -222,6 +225,7 @@ class Application(Tk):
         return
     
     def information_popup(self):
+        messagebox.showwarning(title="Feature unavailable", message="This feature hasn't been implemented yet. Please check back later!")
         pass
     
     def on_exit(self):        
@@ -247,6 +251,7 @@ class Application(Tk):
         self.text_output.config(state=DISABLED)
     
     def export(self, output_type):
+        messagebox.showwarning(title="Feature unavailable", message="This feature hasn't been implemented yet. Please check back later!")
         print(f"exporting as {output_type!r}")
     
     def copy_output(self):
@@ -293,7 +298,7 @@ def apply_chord(chord, key):
 
 if __name__ == '__main__':
     
-    __version__ = '0.3'
+    __version__ = '0.4'
 
     try:
         from application_update import execute_update
