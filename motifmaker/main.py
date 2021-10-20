@@ -1,7 +1,7 @@
 import random
 from functools import partial
 from itertools import chain
-from os import path
+from os import path, sep
 from tkinter import *
 from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Spinbox, Style
 
@@ -34,6 +34,7 @@ class Application(Tk):
         self.title(f"MotifMaker v{self.version}")
         self.resizable(False, False)
         self.validate_entry = self.register(validate_entry)
+        self.tk.call('wm', 'iconphoto', self._w, PhotoImage(file=f'assets{sep}icon.png'))
         self.SETTINGS = {
             'accidental_type': StringVar(self, DEFAULTS['accidental_type']),
             'motif_length': IntVar(self, DEFAULTS['motif_length']),
