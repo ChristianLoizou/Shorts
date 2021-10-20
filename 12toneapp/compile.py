@@ -1,5 +1,5 @@
 from os import chdir, listdir, remove, sep, system
-from shutil import copyfile as copy
+from shutil import copyfile as copyf
 from shutil import rmtree
 from sys import platform
 from time import sleep
@@ -34,16 +34,18 @@ for req in ['pys']:
 
 if platform == 'win32':
     if 'exes' not in listdir(): system(f'mkdir exes')
-    try: copy('assets', f'asset_backups{sep}v{curr_version}{sep}assets{sep}')
+    try: 
+        for file in listdir('assets'):
+            copyf(f'assets{sep}{file}', f'asset_backups{sep}v{curr_version}{sep}{file}')
     except FileNotFoundError: print("No assets found")
-    try: copy('application_update.py', f'asset_backups{sep}v{curr_version}{sep}application_update.py')
+    try: copyf('application_update.py', f'asset_backups{sep}v{curr_version}{sep}application_update.py')
     except FileNotFoundError: print("No 'application_update.py' file found")
-    copy('main.py', f'pys{sep}v{curr_version}.py')
+    copyf('main.py', f'pys{sep}v{curr_version}.py')
     if 'latest.py' in listdir():
-        copy('latest.exe', f'exes{sep}v{last_version}.exe')
+        copyf('latest.exe', f'exes{sep}v{last_version}.exe')
     system("pyinstaller --onefile -w main.py")
-    copy(f'dist{sep}main.exe', 'latest.exe')
-    copy('latest.exe', f'exes{sep}v{curr_version}.exe')
+    copyf(f'dist{sep}main.exe', 'latest.exe')
+    copyf('latest.exe', f'exes{sep}v{curr_version}.exe')
     for directory in ["dist", "build"]:
         rmtree(directory)
     remove('main.spec')

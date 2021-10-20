@@ -1,5 +1,5 @@
 from os import chdir, listdir, remove, sep, system
-from shutil import copyfile as copyf, copytree
+from shutil import copyfile as copyf
 from shutil import rmtree
 from sys import platform
 from time import sleep
@@ -36,7 +36,6 @@ for req in ['pys']:
 if platform == 'win32':
     if 'exes' not in listdir(): system(f'mkdir exes')
     try: 
-        # copytree('assets', f'asset_backups{sep}v{curr_version}{sep}')
         for file in listdir('assets'):
             copyf(f'assets{sep}{file}', f'asset_backups{sep}v{curr_version}{sep}{file}')
     except FileNotFoundError: print("No assets found")
