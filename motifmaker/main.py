@@ -1,4 +1,4 @@
-import random, pyperclip
+import random
 from functools import partial
 from itertools import chain
 from os import path
@@ -249,7 +249,10 @@ class Application(Tk):
         print(f"exporting as {output_type!r}")
     
     def copy_output(self):
-        pyperclip.copy(self.text_output.get('1.0', END))
+        global app
+        app.clipboard_clear()
+        app.clipboard_append(self.text_output.get('1.0', END))
+        app.update()
     
 
 def get_num_voices(vs):
