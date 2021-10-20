@@ -24,22 +24,31 @@ with open("VERSION_DATA", 'w') as version_data_file:
             version_data_file.write(':'.join(l) + "\n")
 
 chdir(PROJECT_NAME)
+
+if f'v{curr_version}' not in listdir('asset_backups'):
+    system(f'mkdir asset_backups{sep}v{curr_version}')
+for req in ['pys']:
+    if req not in listdir(): 
+        system(f'mkdir {req}')
+
 if platform == 'win32':
-    if not path.exists(f'asset_backups{sep}v{curr_version}{sep}'):
-        makedirs(f'asset_backups{sep}v{curr_version}{sep}')
-    system(f'xcopy /e /i assets asset_backups{sep}v{curr_version}{sep}assets{sep}')
-    system(f'copy application_update.py asset_backups{sep}v{curr_version}{sep}application_update.py')
-    system(f'copy main.py pys{sep}v{curr_version}.py')
+    if 'exes' not in listdir(): system(f'mkdir exes')
+    try: copy('assets', f'asset_backups{sep}v{curr_version}{sep}assets{sep}')
+    except FileNotFoundError: print("No assets found")
+    try: copy('application_update.py', f'asset_backups{sep}v{curr_version}{sep}application_update.py')
+    except FileNotFoundError: print("No 'application_update.py' file found")
+    copy('main.py', f'pys{sep}v{curr_version}.py')
     if 'latest.py' in listdir():
-        system(f'copy latest.exe exes{sep}v{last_version}.exe')
+        copy('latest.exe', f'exes{sep}v{last_version}.exe')
     system("pyinstaller --onefile -w main.py")
-    system(f'copy dist{sep}main.exe latest.exe')
-    system(f'copy latest.exe exes{sep}v{curr_version}.exe')
-    
+    copy(f'dist{sep}main.exe', 'latest.exe')
+    copy('latest.exe', f'exes{sep}v{curr_version}.exe')
     for directory in ["dist", "build"]:
         rmtree(directory)
     remove('main.spec')
 elif platform == 'darwin':
+    if 'apps' not in listdir(): system(f'mkdir apps')
+    system(f'cp main.py pys{sep}v{curr_version}.py')
     system(f'cp -r assets asset_backups{sep}v{curr_version}{sep}assets')
     system(f'cp application_update.py asset_backups{sep}v{curr_version}{sep}application_update.py')
     DEPENDENCIES = ['assets', 'application_update.py']
