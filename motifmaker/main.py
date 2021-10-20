@@ -42,7 +42,7 @@ class Application(Tk):
             'max_repetitions': IntVar(self, DEFAULTS['max_repetitions']),
             'mode': StringVar(self, DEFAULTS['mode']),
             'num_voices': StringVar(self, '4')
-        }
+        } 
         self.add_widgets()
     
     def add_widgets(self):
