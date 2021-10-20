@@ -1,7 +1,7 @@
-import random, pyperclip
+import random
 from functools import partial
 from itertools import chain
-from os import path
+from os import path, sep
 from tkinter import *
 from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Spinbox, Style
 
@@ -34,6 +34,7 @@ class Application(Tk):
         self.title(f"MotifMaker v{self.version}")
         self.resizable(False, False)
         self.validate_entry = self.register(validate_entry)
+        self.tk.call('wm', 'iconphoto', self._w, PhotoImage(file=f'assets{sep}icon.png'))
         self.SETTINGS = {
             'accidental_type': StringVar(self, DEFAULTS['accidental_type']),
             'motif_length': IntVar(self, DEFAULTS['motif_length']),
@@ -41,7 +42,7 @@ class Application(Tk):
             'max_repetitions': IntVar(self, DEFAULTS['max_repetitions']),
             'mode': StringVar(self, DEFAULTS['mode']),
             'num_voices': StringVar(self, '4')
-        }
+        } 
         self.add_widgets()
     
     def add_widgets(self):
@@ -249,7 +250,10 @@ class Application(Tk):
         print(f"exporting as {output_type!r}")
     
     def copy_output(self):
-        pyperclip.copy(self.text_output.get('1.0', END))
+        global app
+        app.clipboard_clear()
+        app.clipboard_append(self.text_output.get('1.0', END))
+        app.update()
     
 
 def get_num_voices(vs):
@@ -261,9 +265,8 @@ def get_enharmonic_equivalent(note):
     enharms = {'A': 'B', 'B': 'C', 'C': 'D', 'D': 'E', 'E': 'F', 'F': 'G', 'G': 'A'}
     return enharms[note[:-1]]+'b' if '#' in note else {v: k for (k,v) in enharms.items()}[note[:-1]]+'#' if 'b' in note else note
 
-def validate_entry(*args, **kwargs):
+def validate_entry(sett_name, after, reason, default, *args, **kwargs):
     global app
-    sett_name, after, reason, default = args
     if type(app.SETTINGS[sett_name]) is IntVar:
         if reason == 'focusout' and after == '': 
             app.SETTINGS[sett_name].set(int(default))
