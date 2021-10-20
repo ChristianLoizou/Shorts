@@ -264,9 +264,8 @@ def get_enharmonic_equivalent(note):
     enharms = {'A': 'B', 'B': 'C', 'C': 'D', 'D': 'E', 'E': 'F', 'F': 'G', 'G': 'A'}
     return enharms[note[:-1]]+'b' if '#' in note else {v: k for (k,v) in enharms.items()}[note[:-1]]+'#' if 'b' in note else note
 
-def validate_entry(*args, **kwargs):
+def validate_entry(sett_name, after, reason, default, *args, **kwargs):
     global app
-    sett_name, after, reason, default = args
     if type(app.SETTINGS[sett_name]) is IntVar:
         if reason == 'focusout' and after == '': 
             app.SETTINGS[sett_name].set(int(default))
