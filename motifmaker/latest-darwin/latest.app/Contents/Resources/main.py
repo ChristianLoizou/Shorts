@@ -1,8 +1,9 @@
-import random, pyperclip
+import random
 from functools import partial
 from itertools import chain
-from os import path
+from os import path, sep
 from tkinter import *
+from tkinter import messagebox
 from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Spinbox, Style
 
 
@@ -17,7 +18,11 @@ MODES = {
         'major': [0, 2, 4, 5, 7, 9, 11],
         'minor': [0, 2, 3, 5, 7, 8, 11],
         'octatonic_tone': [0, 2, 3, 5, 6, 8, 9, 11],
-        'octatonic_semi': [0, 1, 3, 4, 6, 7, 9, 10]
+        'octatonic_semitone': [0, 1, 3, 4, 6, 7, 9, 10],
+        'pentatonic_major': [0, 2, 4, 7, 9],
+        'pentatonic_minor': [0, 3, 5, 7, 10],
+        'pentatonic_minyo': [0, 3, 5, 7, 10],
+        'pentatonic_miyako-bushi': [0, 1, 4, 6, 7]
     }
 
 SCALES = {
@@ -34,6 +39,7 @@ class Application(Tk):
         self.title(f"MotifMaker v{self.version}")
         self.resizable(False, False)
         self.validate_entry = self.register(validate_entry)
+        self.tk.call('wm', 'iconphoto', self._w, PhotoImage(file=f'assets{sep}icon.png'))
         self.SETTINGS = {
             'accidental_type': StringVar(self, DEFAULTS['accidental_type']),
             'motif_length': IntVar(self, DEFAULTS['motif_length']),
@@ -41,7 +47,7 @@ class Application(Tk):
             'max_repetitions': IntVar(self, DEFAULTS['max_repetitions']),
             'mode': StringVar(self, DEFAULTS['mode']),
             'num_voices': StringVar(self, '4')
-        }
+        } 
         self.add_widgets()
     
     def add_widgets(self):
@@ -58,7 +64,7 @@ class Application(Tk):
         self.menu.add_cascade(menu=self.filemenu, label='File')
         self.menu.add_cascade(menu=self.exportmenu, label='Export')
         
-        self.mainframe = Frame(self, bg='#eeeeee')
+        self.mainframe = Frame(self)
         self.lblframe_outputframe = LabelFrame(self.mainframe, text='Output')
         self.text_output = Text(self.lblframe_outputframe, state=DISABLED)
         self.btn_run = Button(self.mainframe, text='Generate sequence', command=self.execute)
@@ -72,10 +78,11 @@ class Application(Tk):
         self.mainframe.pack(anchor='center')
     
     def settings_popup(self):
+        messagebox.showinfo(title="WiP", message="Limited settings are available as of yet. More are coming soon! Stay tuned...")
         self.settings_window = Toplevel()
         self.settings_window.title("Settings")
         self.settings_window.resizable(False, False)
-        self.settings_window.config(bg='#eeeeee')
+        self.settings_window.config()
         
         self.settings_frames = {
             'motif_length': LabelFrame(self.settings_window, text='Motif length'),
@@ -192,7 +199,7 @@ class Application(Tk):
         self.settings_window.mainloop()
         self.settings_window.grab_set()
         
-    
+        
     def change_setting(self, setting, value):
         global NOTES
         if value: self.SETTINGS[setting].set(value)
@@ -215,12 +222,13 @@ class Application(Tk):
         elif setting == 'max_repetitions':
             self.SETTINGS['max_repetitions'].set(self.settings_widgets['max_repetitions_spin'].get())
         elif setting == 'mode':
-            self.settings_widgets['mode_menu'].configure(text=value.capitalize())
+            self.settings_widgets['mode_menu'].configure(text=value.replace('_', ' ').capitalize())
         elif setting == 'key':
             self.settings_widgets['key_menu'].configure(text=value)
         return
     
     def information_popup(self):
+        messagebox.showwarning(title="Feature unavailable", message="This feature hasn't been implemented yet. Please check back later!")
         pass
     
     def on_exit(self):        
@@ -228,7 +236,6 @@ class Application(Tk):
         self.quit()
         
     def execute(self):
-        
         generated_data = list() 
         key = self.SETTINGS['key'].get()
         max_repetitions = self.SETTINGS['max_repetitions'].get()
@@ -247,10 +254,14 @@ class Application(Tk):
         self.text_output.config(state=DISABLED)
     
     def export(self, output_type):
+        messagebox.showwarning(title="Feature unavailable", message="This feature hasn't been implemented yet. Please check back later!")
         print(f"exporting as {output_type!r}")
     
     def copy_output(self):
-        pyperclip.copy(self.text_output.get('1.0', END))
+        global app
+        app.clipboard_clear()
+        app.clipboard_append(self.text_output.get('1.0', END))
+        app.update()
     
 
 def get_num_voices(vs):
@@ -262,9 +273,8 @@ def get_enharmonic_equivalent(note):
     enharms = {'A': 'B', 'B': 'C', 'C': 'D', 'D': 'E', 'E': 'F', 'F': 'G', 'G': 'A'}
     return enharms[note[:-1]]+'b' if '#' in note else {v: k for (k,v) in enharms.items()}[note[:-1]]+'#' if 'b' in note else note
 
-def validate_entry(*args, **kwargs):
+def validate_entry(sett_name, after, reason, default, *args, **kwargs):
     global app
-    sett_name, after, reason, default = args
     if type(app.SETTINGS[sett_name]) is IntVar:
         if reason == 'focusout' and after == '': 
             app.SETTINGS[sett_name].set(int(default))
@@ -291,7 +301,7 @@ def apply_chord(chord, key):
 
 if __name__ == '__main__':
     
-    __version__ = '0.3'
+    __version__ = 'v0.4'
 
     try:
         from application_update import execute_update
