@@ -1,3 +1,4 @@
+#!python3.7
 import random
 from functools import partial
 from itertools import chain
