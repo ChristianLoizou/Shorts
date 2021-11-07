@@ -1,8 +1,12 @@
+#!python3.7
 import random
 from functools import partial
 from itertools import chain
+from music21 import metadata, note, stream
 from os import path, sep
 from tkinter import *
+from tkinter import messagebox
+from tkinter.filedialog import asksaveasfilename
 from tkinter.ttk import Button, Entry, Label, LabelFrame, Menubutton, OptionMenu, Spinbox, Style
 
 
@@ -17,7 +21,11 @@ MODES = {
         'major': [0, 2, 4, 5, 7, 9, 11],
         'minor': [0, 2, 3, 5, 7, 8, 11],
         'octatonic_tone': [0, 2, 3, 5, 6, 8, 9, 11],
-        'octatonic_semi': [0, 1, 3, 4, 6, 7, 9, 10]
+        'octatonic_semitone': [0, 1, 3, 4, 6, 7, 9, 10],
+        'pentatonic_major': [0, 2, 4, 7, 9],
+        'pentatonic_minor': [0, 3, 5, 7, 10],
+        'pentatonic_minyo': [0, 3, 5, 7, 10],
+        'pentatonic_miyako-bushi': [0, 1, 4, 6, 7]
     }
 
 SCALES = {
@@ -31,7 +39,7 @@ class Application(Tk):
     def __init__(self, version, *args, **kwargs):
         super(Application, self).__init__(*args, **kwargs)
         self.version = version
-        self.title(f"MotifMaker v{self.version}")
+        self.title(f"MotifMaker {self.version}")
         self.resizable(False, False)
         self.validate_entry = self.register(validate_entry)
         self.tk.call('wm', 'iconphoto', self._w, PhotoImage(file=f'assets{sep}icon.png'))
@@ -55,11 +63,11 @@ class Application(Tk):
         self.exportmenu = Menu(self.menu)
         self.exportmenu.add_command(label='Export to TXT', command=lambda: self.export('txt'))
         self.exportmenu.add_command(label='Export to MIDI', command=lambda: self.export('midi'))
-        self.exportmenu.add_command(label='Export to MXL', command=lambda: self.export('mxml'))
+        self.exportmenu.add_command(label='Export to MXL', command=lambda: self.export('mxl'))
         self.menu.add_cascade(menu=self.filemenu, label='File')
         self.menu.add_cascade(menu=self.exportmenu, label='Export')
         
-        self.mainframe = Frame(self, bg='#eeeeee')
+        self.mainframe = Frame(self)
         self.lblframe_outputframe = LabelFrame(self.mainframe, text='Output')
         self.text_output = Text(self.lblframe_outputframe, state=DISABLED)
         self.btn_run = Button(self.mainframe, text='Generate sequence', command=self.execute)
@@ -73,10 +81,11 @@ class Application(Tk):
         self.mainframe.pack(anchor='center')
     
     def settings_popup(self):
+        messagebox.showinfo(title="WiP", message="Limited settings are available as of yet. More are coming soon! Stay tuned...")
         self.settings_window = Toplevel()
         self.settings_window.title("Settings")
         self.settings_window.resizable(False, False)
-        self.settings_window.config(bg='#eeeeee')
+        self.settings_window.config()
         
         self.settings_frames = {
             'motif_length': LabelFrame(self.settings_window, text='Motif length'),
@@ -193,7 +202,7 @@ class Application(Tk):
         self.settings_window.mainloop()
         self.settings_window.grab_set()
         
-    
+        
     def change_setting(self, setting, value):
         global NOTES
         if value: self.SETTINGS[setting].set(value)
@@ -216,12 +225,13 @@ class Application(Tk):
         elif setting == 'max_repetitions':
             self.SETTINGS['max_repetitions'].set(self.settings_widgets['max_repetitions_spin'].get())
         elif setting == 'mode':
-            self.settings_widgets['mode_menu'].configure(text=value.capitalize())
+            self.settings_widgets['mode_menu'].configure(text=value.replace('_', ' ').capitalize())
         elif setting == 'key':
             self.settings_widgets['key_menu'].configure(text=value)
         return
     
     def information_popup(self):
+        messagebox.showwarning(title="Feature unavailable", message="This feature hasn't been implemented yet. Please check back later!")
         pass
     
     def on_exit(self):        
@@ -247,7 +257,34 @@ class Application(Tk):
         self.text_output.config(state=DISABLED)
     
     def export(self, output_type):
-        print(f"exporting as {output_type!r}")
+        output = self.text_output.get('1.0', END)
+        if output.strip() == '':
+            messagebox.showerror(
+                title='Could not export', 
+                message='Nothing to export. Try generating some music first!'
+                )
+            return 
+        ext = {
+            'txt': ("Text Document","*.txt"),
+            'midi': ("MIDI File","*.midi"),
+            'mxl': ("Music XML File","*.mxl")
+            }[output_type]
+        
+        fp = asksaveasfilename(
+            initialfile=f'untitled{ext[1][1:]}', 
+            defaultextension=ext[1],
+            filetypes=[("All Files","*.*"), ext])
+    
+        if output_type == "txt":
+            with open(fp, 'w') as o_file:
+                o_file.write(output)
+        else:
+            score = createMXL(output)
+            if output_type == "midi":
+                score.write('midi', fp=fp)
+            elif output_type == "mxl":
+                score.write('xml', fp=fp)
+
     
     def copy_output(self):
         global app
@@ -255,6 +292,31 @@ class Application(Tk):
         app.clipboard_append(self.text_output.get('1.0', END))
         app.update()
     
+
+def createMXL(output):
+    octave = 4
+    
+    pre_chords = [line.split('\t') for line in output.split('\n') if line]
+    num_voices = max([len(c) for c in pre_chords])
+    chords = [list(chain(chord, ['r',]*(num_voices-len(chord)))) for chord in pre_chords]
+    
+    _score = stream.Score(id='mainscore')
+    _score.metadata = metadata.Metadata(
+        title='Generated music',
+        composer=f'MotifMaker {app.version}'
+    )
+    parts = [stream.Part(id=f'part{pn}') for pn in range(num_voices)]
+    
+    for measure_number, _chord in enumerate(chords):
+        for voice, _note in enumerate(_chord):
+            pitch = _note.replace('b', '-')
+            if pitch == 'r': nn = note.Rest(type='whole')
+            else: nn = note.Note(f'{pitch}{octave}', type='whole')
+            measure = stream.Measure(number=measure_number+1)
+            measure.append(nn)
+            parts[voice].append(measure)
+    for part in parts: _score.insert(0, part)
+    return _score
 
 def get_num_voices(vs):
     l = vs.split('-')
@@ -293,7 +355,7 @@ def apply_chord(chord, key):
 
 if __name__ == '__main__':
     
-    __version__ = '0.3'
+    __version__ = 'v0.5'
 
     try:
         from application_update import execute_update
