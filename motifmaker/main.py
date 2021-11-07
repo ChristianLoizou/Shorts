@@ -258,6 +258,12 @@ class Application(Tk):
     
     def export(self, output_type):
         output = self.text_output.get('1.0', END)
+        if output.strip() == '':
+            messagebox.showerror(
+                title='Could not export', 
+                message='Nothing to export. Try generating some music first!'
+                )
+            return 
         ext = {
             'txt': ("Text Document","*.txt"),
             'midi': ("MIDI File","*.midi"),
@@ -349,7 +355,7 @@ def apply_chord(chord, key):
 
 if __name__ == '__main__':
     
-    __version__ = 'v0.4'
+    __version__ = 'v0.5'
 
     try:
         from application_update import execute_update
