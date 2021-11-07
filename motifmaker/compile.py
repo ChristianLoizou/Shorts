@@ -36,8 +36,8 @@ for req in ['pys']:
 if platform == 'win32':
     if 'exes' not in listdir(): system(f'mkdir exes')
     try: 
-        for file in listdir('assets'):
-            copyf(f'assets{sep}{file}', f'asset_backups{sep}v{curr_version}{sep}{file}')
+        for _file in listdir('assets'):
+            copyf(f'assets{sep}{_file}', f'asset_backups{sep}v{curr_version}{sep}{_file}')
     except FileNotFoundError: print("No assets found")
     try: copyf('application_update.py', f'asset_backups{sep}v{curr_version}{sep}application_update.py')
     except FileNotFoundError: print("No 'application_update.py' file found")
