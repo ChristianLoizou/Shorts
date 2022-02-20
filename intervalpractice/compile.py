@@ -29,17 +29,23 @@ chdir(PROJECT_NAME)
 if f'v{curr_version}' not in listdir('asset_backups'):
     system(f'mkdir asset_backups{sep}v{curr_version}')
 for req in ['pys']:
-    if req not in listdir(): 
+    if req not in listdir():
         system(f'mkdir {req}')
 
 if platform == 'win32':
-    if 'exes' not in listdir(): system(f'mkdir exes')
-    try: 
+    if 'exes' not in listdir():
+        system(f'mkdir exes')
+    try:
         for file in listdir('assets'):
-            copyf(f'assets{sep}{file}', f'asset_backups{sep}v{curr_version}{sep}{file}')
-    except FileNotFoundError: print("No assets found")
-    try: copyf('application_update.py', f'asset_backups{sep}v{curr_version}{sep}application_update.py')
-    except FileNotFoundError: print("No 'application_update.py' file found")
+            copyf(f'assets{sep}{file}',
+                  f'asset_backups{sep}v{curr_version}{sep}{file}')
+    except FileNotFoundError:
+        print("No assets found")
+    try:
+        copyf('application_update.py',
+              f'asset_backups{sep}v{curr_version}{sep}application_update.py')
+    except FileNotFoundError:
+        print("No 'application_update.py' file found")
     copyf('main.py', f'pys{sep}v{curr_version}.py')
     if 'latest.py' in listdir():
         copyf('latest.exe', f'exes{sep}v{last_version}.exe')
@@ -50,10 +56,12 @@ if platform == 'win32':
         rmtree(directory)
     remove('main.spec')
 elif platform == 'darwin':
-    if 'apps' not in listdir(): system(f'mkdir apps')
+    if 'apps' not in listdir():
+        system(f'mkdir apps')
     system(f'cp main.py pys{sep}v{curr_version}.py')
     system(f'cp -r assets asset_backups{sep}v{curr_version}{sep}assets')
-    system(f'cp application_update.py asset_backups{sep}v{curr_version}{sep}application_update.py')
+    system(
+        f'cp application_update.py asset_backups{sep}v{curr_version}{sep}application_update.py')
     DEPENDENCIES = ['assets', 'application_update.py']
     system('py2applet --make-setup main.py')
     with open('setup.py', 'r') as setup_file:
@@ -68,10 +76,12 @@ elif platform == 'darwin':
     system('mkdir latest-darwin')
     system(f'mkdir apps{sep}v{curr_version}')
     system(f'cp -r dist{sep}main.app{sep} latest-darwin{sep}latest.app{sep}')
-    system(f'cp -r dist{sep}main.app{sep} apps{sep}v{curr_version}{sep}v{curr_version}.app{sep}')
-    system(f'hdiutil create -ov -volname latest -srcfolder latest-darwin{sep}latest.app latest-darwin{sep}latest.dmg')
-    system(f'cp -r latest-darwin{sep}latest.dmg apps{sep}v{curr_version}{sep}v{curr_version}.dmg')
+    system(
+        f'cp -r dist{sep}main.app{sep} apps{sep}v{curr_version}{sep}v{curr_version}.app{sep}')
+    system(
+        f'hdiutil create -ov -volname latest -srcfolder latest-darwin{sep}latest.app latest-darwin{sep}latest.dmg')
+    system(
+        f'cp -r latest-darwin{sep}latest.dmg apps{sep}v{curr_version}{sep}v{curr_version}.dmg')
     for directory in ['dist', 'build']:
         rmtree(directory)
     remove('setup.py')
-

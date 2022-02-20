@@ -62,7 +62,8 @@ def setup_window():
     root = Tk()
     root.title(f"Interval Practice {__version__}")
     root.resizable(False, False)
-    root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
+    try: root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file=f'assets{os.sep}icon.png'))
+    except: pass
     root.after(500, root.focus_force)
 
     canvas = Canvas(root, width=WIDTH, height=HEIGHT)
@@ -137,7 +138,7 @@ def draw_exercise(exercise, canvas):
         nx, ny = cx + dx, interval.get_dy()
         lx, cx = cx, nx + dx
         txtangle = degrees(acos(dx/hypot(dx, ny))) * (ny/abs(ny))
-        t = canvas.create_text(lx + (dx//2), -ny//2, text=str(interval), angle=txtangle)
+        t = canvas.create_text(lx + (dx//2), -ny//2, text=str(interval), angle=txtangle, fill='black')
         bb = canvas.create_rectangle(canvas.bbox(t), fill='white', width=0)
         canvas.tag_lower(bb, t)
 
@@ -171,11 +172,13 @@ def play_home_tone():
     play_thread = threading.Thread(target=playtone, args=(FREQUENCY_DICT[HOME_NOTE], TONE_DURATION), daemon=True)
     play_thread.start()
 
+
 def play_notes(notes):
     pause = [.6, .2, .005][int(OPTIONS['PLAYBACK_SPEED'].get())-1]
     for freq in notes:
         playtone(freq, TONE_DURATION)
         sleep(pause)
+
 
 def rerun_application():
     global exercise
@@ -184,6 +187,7 @@ def rerun_application():
         draw_exercise(exercise, canvas)
     else:
         messagebox.showerror("Could not create exercise", "No intervals have been selected to test. Please select at least one interval in the 'intervals' menu and try again")
+
 
 def update_starting_note(_=None):
     global HOME_NOTE, OPTIONS
@@ -239,11 +243,12 @@ if __name__ == "__main__":
     try:
         from application_update import execute_update
         if execute_update('intervalpractice', __version__, os.path.basename(__file__)):
-            exit(0)
-    except:
-        pass
+            exit()
 
-    if platform == "win32":
+    except ModuleNotFoundError:
+        pass
+        
+    if platform in ["win32", 'linux']:
         COLORS = {
             "WINDOW_BACKGROUND": '#cccccc',
             "TEXTCOLOR": 'black'
@@ -253,6 +258,7 @@ if __name__ == "__main__":
             "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
             "TEXTCOLOR": 'systemTextColor'
         }
+
 
     WIDTH, HEIGHT = (1200, 500)
     XPAD = 50

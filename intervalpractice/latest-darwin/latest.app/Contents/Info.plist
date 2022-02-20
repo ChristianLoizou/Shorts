@@ -70,8 +70,8 @@
 		<key>PythonExecutable</key>
 		<string>/opt/local/bin/python3.7</string>
 		<key>PythonLongVersion</key>
-		<string>3.7.10 (default, Mar 16 2021, 12:40:23) 
-[Clang 12.0.0 (clang-1200.0.32.29)]</string>
+		<string>3.7.12 (default, Nov 10 2021, 04:31:40) 
+[Clang 13.0.0 (clang-1300.0.29.3)]</string>
 		<key>PythonShortVersion</key>
 		<string>3.7</string>
 		<key>py2app</key>
