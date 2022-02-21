@@ -238,7 +238,7 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.5.5"
+    __version__ = "v1.5.6"
 
     try:
         from application_update import execute_update
