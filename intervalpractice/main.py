@@ -300,9 +300,9 @@ def mousePressed(event):
                 idx = stamp_positions.index(pos)
                 interval = exercise[idx]
                 break
-        home_frequency = FREQUENCY_DICT[PITCHES[PITCHES.index(HOME_NOTE)]]
-        interval_frequency = FREQUENCY_DICT[PITCHES[
-            PITCHES.index(HOME_NOTE) + interval.semitones]]
+        home_note = PITCHES.index(HOME_NOTE)
+        home_pitch, interval_pitch = PITCHES[home_note], PITCHES[home_note + interval.semitones]
+        home_frequency, interval_frequency = FREQUENCY_DICT[home_pitch], FREQUENCY_DICT[interval_pitch]
         play_freqs(home_frequency, interval_frequency)
     except NameError:
         pass
