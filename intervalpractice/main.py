@@ -89,6 +89,8 @@ def setup_window():
     play_home_tone_btn.grid(row=0, column=2, sticky='nsew')
     settings_btn.grid(row=0, column=3, sticky='nsew')
 
+    root.bind('<ButtonPress-1>', mousePressed)
+
     return root, canvas, turtle.TurtleScreen(canvas)
 
 
@@ -113,12 +115,13 @@ def reset_turtle(turt, x=None, y=None):
 
 
 def draw_exercise(exercise, canvas):
-    global play_btn
+    global play_btn, stamp_positions
     play_btn.config(state="enabled")
 
     ox = -(WIDTH-XPAD)//2
     cx = ox
     dx = (WIDTH - (XPAD)) // (len(exercise)*2)
+    stamp_positions = list()
     reset_turtle(turt, cx)
     turt.stamp()
     turt.pendown()
@@ -161,6 +164,7 @@ def draw_exercise(exercise, canvas):
                 turt.pendown()
             else:
                 turt.penup()
+                stamp_positions.append(pos)
             turt.setposition(*pos)
             turt.stamp()
 
@@ -285,6 +289,23 @@ def settings():
                          pady=15, ipadx=5, ipady=5)
 
         settings_popup.mainloop()
+
+
+def mousePressed(event):
+    global exercise, stamp_positions
+    try:
+        x, y = event.x - WIDTH/2 - 4, - (event.y - HEIGHT/2 - 4)
+        for pos in stamp_positions:
+            if abs(x-pos[0]) < 5 and abs(y-pos[1]) < 5:
+                idx = stamp_positions.index(pos)
+                interval = exercise[idx]
+                break
+        home_frequency = FREQUENCY_DICT[PITCHES[PITCHES.index(HOME_NOTE)]]
+        interval_frequency = FREQUENCY_DICT[PITCHES[
+            PITCHES.index(HOME_NOTE) + interval.semitones]]
+        play_freqs(home_frequency, interval_frequency)
+    except NameError:
+        pass
 
 
 if __name__ == "__main__":
