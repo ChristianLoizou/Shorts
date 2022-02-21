@@ -1,18 +1,17 @@
 #!usr/bin/env python3
 import os
 import random
+import threading
 import turtle
 from math import acos, degrees, hypot
+from numpy import abs, int16, linspace, max, pi, sin
+from simpleaudio import play_buffer
 from sys import exit, platform
+from time import sleep
 from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import (Button, Checkbutton, Label, LabelFrame, OptionMenu,
                          Spinbox, Style)
-
-if platform == "win32":
-    import threading
-    from time import sleep
-    from winsound import Beep as playtone
 
 
 class Interval:
@@ -167,10 +166,6 @@ def draw_exercise(exercise, canvas):
 
 
 def play_exercise():
-    if platform != "win32":
-        messagebox.showerror("Cannot play back exercise",
-                             "Your operating system does not support playback")
-        return
     notes_to_play, home_idx = [HOME_NOTE], PITCHES.index(HOME_NOTE)
 
     for interval in exercise:
@@ -185,11 +180,7 @@ def play_exercise():
 
 
 def play_home_tone():
-    if platform != "win32":
-        messagebox.showerror("Cannot play back exercise",
-                             "Your operating system does not support playback")
-        return
-    play_thread = threading.Thread(target=playtone, args=(
+    play_thread = threading.Thread(target=play_freqs, args=(
         FREQUENCY_DICT[HOME_NOTE], TONE_DURATION), daemon=True)
     play_thread.start()
 
@@ -197,8 +188,20 @@ def play_home_tone():
 def play_notes(notes):
     pause = [.6, .2, .005][int(OPTIONS['PLAYBACK_SPEED'].get())-1]
     for freq in notes:
-        playtone(freq, TONE_DURATION)
+        play_freqs(freq, duration=TONE_DURATION)
         sleep(pause)
+
+
+def play_freqs(*freqs, duration=1):
+    sr = 44100
+    t = linspace(0, duration, duration * sr, False)
+
+    notes = [sin(freq * t * 2 * pi) for freq in freqs]
+    audios = [(note * (2**15 - 1) / max(abs(note))) for note in notes]
+    audios = [audio.astype(int16) for audio in audios]
+    for audio in audios:
+        play_obj = play_buffer(audio, 1, 2, sr)
+    play_obj.wait_done()
 
 
 def rerun_application():
@@ -257,8 +260,8 @@ def settings():
         showguidelines_cb = Checkbutton(other_frame, text="Show semitone guidelines\n(Applied on redraw)",
                                         variable=OPTIONS['SHOW_GUIDELINES'], style="SettingsCheckbutton.TCheckbutton")
         simultaneousplayback_cb = Checkbutton(
-            other_frame, text="Simultaneous playback\n(Playback only supported on Windows)", variable=OPTIONS['SIMULTANEOUS_PLAYBACK'],
-            style="SettingsCheckbutton.TCheckbutton", state="disabled" if platform != 'win32' else 'enabled')
+            other_frame, text="Simultaneous playback", variable=OPTIONS['SIMULTANEOUS_PLAYBACK'],
+            style="SettingsCheckbutton.TCheckbutton")
 
         homenote_lbl.grid(row=0, column=0, sticky='w', padx=15)
         homenote_om.grid(row=0, column=1, sticky='e')
@@ -308,7 +311,7 @@ if __name__ == "__main__":
     TURTLESIZE = (.4, .4)
 
     HOME_NOTE = "C5"
-    TONE_DURATION = 750
+    TONE_DURATION = 1
 
     MAX_EXERSISE_LENGTH = 8
     MIN_EXERSISE_LENGTH = 3
