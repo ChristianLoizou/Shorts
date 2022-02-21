@@ -251,7 +251,7 @@ def settings():
                             padx=15, pady=15, ipadx=5, ipady=5)
 
         other_frame = LabelFrame(
-            settings_popup, text="Other settings", style="SettingsLabelframe.TLabelframe")
+            settings_popup, text="General settings", style="SettingsLabelframe.TLabelframe")
         homenote_lbl = Label(other_frame, text="Starting note: ")
         homenote_om = OptionMenu(
             other_frame, OPTIONS['HOME_NOTE_VARIABLE'], NOTE_NAMES[0], *NOTE_NAMES, command=update_starting_note)
@@ -289,7 +289,7 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.6.5"
+    __version__ = "v1.6.6"
 
     try:
         from application_update import execute_update
