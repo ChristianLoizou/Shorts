@@ -187,9 +187,15 @@ def play_home_tone():
 
 def play_notes(notes):
     pause = [.6, .2, .005][int(OPTIONS['PLAYBACK_SPEED'].get())-1]
-    for freq in notes:
-        play_freqs(freq, duration=TONE_DURATION)
-        sleep(pause)
+    if int(OPTIONS['SIMULTANEOUS_PLAYBACK'].get()):
+        pairs = [(notes[i], notes[i+1]) for i in range(0, len(notes)-1, 2)]
+        for pair in pairs:
+            play_freqs(*pair, duration=TONE_DURATION)
+            sleep(pause)
+    else:
+        for freq in notes:
+            play_freqs(freq, duration=TONE_DURATION)
+            sleep(pause)
 
 
 def play_freqs(*freqs, duration=1):
@@ -283,7 +289,7 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.6"
+    __version__ = "v1.6.5"
 
     try:
         from application_update import execute_update
