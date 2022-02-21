@@ -49,7 +49,7 @@ if platform == 'win32':
     copyf('main.py', f'pys{sep}v{curr_version}.py')
     if 'latest.py' in listdir():
         copyf('latest.exe', f'exes{sep}v{last_version}.exe')
-    system("pyinstaller --onefile -w main.py")
+    system("pyinstaller --onefile -w --icon=assets/icon.ico main.py")
     copyf(f'dist{sep}main.exe', 'latest.exe')
     copyf('latest.exe', f'exes{sep}v{curr_version}.exe')
     for directory in ["dist", "build"]:

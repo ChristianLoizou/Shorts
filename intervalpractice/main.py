@@ -280,7 +280,7 @@ def settings():
 
 if __name__ == "__main__":
 
-    __version__ = "v1.5.5"
+    __version__ = "v1.5.6"
 
     try:
         from application_update import execute_update
@@ -310,7 +310,7 @@ if __name__ == "__main__":
     HOME_NOTE = "C5"
     TONE_DURATION = 750
 
-    MAX_EXERSISE_LENGTH = 10
+    MAX_EXERSISE_LENGTH = 8
     MIN_EXERSISE_LENGTH = 3
 
     INTERVAL_DESCRIPTORS = {
