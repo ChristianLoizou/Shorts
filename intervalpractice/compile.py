@@ -71,7 +71,7 @@ elif platform == 'darwin':
             if line.startswith('DATA_FILES = '):
                 line = line.replace("[]", repr(DEPENDENCIES))
             setup_file.write(line)
-    system('python3.7 setup.py py2app')
+    system('python3.7 setup.py py2app --packages simpleaudio')
     sleep(.5)
     system('mkdir latest-darwin')
     system(f'mkdir apps{sep}v{curr_version}')
