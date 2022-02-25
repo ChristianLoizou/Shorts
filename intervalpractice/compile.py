@@ -6,7 +6,8 @@ from time import sleep
 
 PROJECT_NAME = "intervalpractice"
 
-print("\nHave you updated the version number in 'main.py'?\n\n")
+print("\nHave you updated the version number in 'main.py'?\nHave you updated the \"What's new?\" section in 'main.py'?\n\n")
+
 
 chdir('..')
 with open("VERSION_DATA", 'r') as version_data_file:
