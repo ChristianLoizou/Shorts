@@ -11,7 +11,7 @@ from time import sleep
 from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import (Button, Checkbutton, Label, LabelFrame, OptionMenu,
-                         Spinbox, Style)
+                         Separator, Spinbox, Style)
 
 
 class Interval:
@@ -78,9 +78,10 @@ def setup_window():
                      command=rerun_application)
     play_btn = Button(btn_canvas, text="Play exercise",
                       command=play_exercise, state="disabled")
-    settings_btn = Button(btn_canvas, text="Settings", command=settings)
     play_home_tone_btn = Button(
         btn_canvas, text="Play starting note", command=play_home_tone)
+    settings_btn = Button(btn_canvas, text="Settings", command=settings)
+    whats_new_btn = Button(btn_canvas, text="What's new?", command=whats_new)
 
     canvas.grid(row=0, column=0)
     btn_canvas.grid(row=1, column=0)
@@ -88,6 +89,7 @@ def setup_window():
     play_btn.grid(row=0, column=1, sticky='nsew')
     play_home_tone_btn.grid(row=0, column=2, sticky='nsew')
     settings_btn.grid(row=0, column=3, sticky='nsew')
+    whats_new_btn.grid(row=0, column=4, sticky='nsew')
 
     root.bind('<ButtonPress-1>', mousePressed)
 
@@ -291,6 +293,39 @@ def settings():
         settings_popup.mainloop()
 
 
+def whats_new():
+    global whats_new_popup
+    try:
+        whats_new_popup.focus_force()
+    except:
+        whats_new_popup = Toplevel()
+        whats_new_popup.title("Settings")
+        whats_new_popup.transient(window)
+        whats_new_popup.resizable(False, False)
+
+        whats_new_styles = Style()
+        whats_new_styles.configure(
+            "WhatsNewLabelframe.TLabelframe.Label",
+            font=("Verdana", 18, "normal"),
+            foreground=COLORS['TEXTCOLOR'])
+        whats_new_styles.configure(
+            "WhatsNewHeadLabel.TLabel", font=("Verdana", "14", "normal"))
+        whats_new_styles.configure(
+            "WhatsNewDescrLabel.TLabel", font=("Verdana", "12", "italic"), wraplength=270)
+
+        lf = LabelFrame(whats_new_popup, text="What's new?",
+                        style="WhatsNewLabelframe.TLabelframe")
+        for i, (head, descr) in enumerate(WHATS_NEW.items()):
+            Label(lf, text=f"● {head}",
+                  style="WhatsNewHeadLabel.TLabel").pack(pady=(5, 0))
+            Label(lf, text=f"{descr}",
+                  style="WhatsNewDescrLabel.TLabel").pack()
+            if i < len(WHATS_NEW)-1:
+                Separator(lf, orient='horizontal').pack(fill='x', pady=(5, 0))
+        lf.pack(padx=15, pady=15, ipadx=15)
+        whats_new_popup.mainloop()
+
+
 def mousePressed(event):
     global exercise, stamp_positions
     try:
@@ -301,7 +336,8 @@ def mousePressed(event):
                 interval = exercise[idx]
                 break
         home_note = PITCHES.index(HOME_NOTE)
-        home_pitch, interval_pitch = PITCHES[home_note], PITCHES[home_note + interval.semitones]
+        home_pitch, interval_pitch = PITCHES[home_note], PITCHES[home_note +
+                                                                 interval.semitones]
         home_frequency, interval_frequency = FREQUENCY_DICT[home_pitch], FREQUENCY_DICT[interval_pitch]
         play_freqs(home_frequency, interval_frequency)
     except NameError:
@@ -311,6 +347,11 @@ def mousePressed(event):
 if __name__ == "__main__":
 
     __version__ = "v1.6.6"
+
+    WHATS_NEW = {
+        'Added this \"What\'s new?\" section': "This section will contain all the updates from the current version",
+        'Added click-to-play functionality': "You can now click on an interval to play it alone."
+    }
 
     try:
         from application_update import execute_update
@@ -328,7 +369,7 @@ if __name__ == "__main__":
     elif platform == "darwin":
         COLORS = {
             "WINDOW_BACKGROUND": 'systemWindowBackgroundColor',
-            "TEXTCOLOR": 'systemTextColor'
+            "TEXTCOLOR": '#333333'
         }
 
     WIDTH, HEIGHT = (1200, 500)
