@@ -309,9 +309,9 @@ def whats_new():
             font=("Verdana", 18, "normal"),
             foreground=COLORS['TEXTCOLOR'])
         whats_new_styles.configure(
-            "WhatsNewHeadLabel.TLabel", font=("Verdana", "14", "normal"))
+            "WhatsNewHeadLabel.TLabel", font=("Verdana", "14", "normal"), anchor='w')
         whats_new_styles.configure(
-            "WhatsNewDescrLabel.TLabel", font=("Verdana", "12", "italic"), wraplength=270)
+            "WhatsNewDescrLabel.TLabel", font=("Verdana", "12", "italic"), anchor='w', wraplength=270)
 
         lf = LabelFrame(whats_new_popup, text="What's new?",
                         style="WhatsNewLabelframe.TLabelframe")
