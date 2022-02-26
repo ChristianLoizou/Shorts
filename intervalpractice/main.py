@@ -3,6 +3,7 @@ import os
 import random
 import threading
 import turtle
+from functools import partial, total_ordering
 from math import acos, degrees, hypot
 from numpy import abs, int16, linspace, max, pi, sin
 from simpleaudio import play_buffer
@@ -14,6 +15,7 @@ from tkinter.ttk import (Button, Checkbutton, Label, LabelFrame, OptionMenu,
                          Separator, Spinbox, Style)
 
 
+@total_ordering
 class Interval:
     def __init__(self, interval_string, direction):
         self.interval = interval_string
@@ -26,6 +28,24 @@ class Interval:
 
     def __repr__(self):
         return self.interval.replace("8th", "Octave")
+
+    def __lt__(self, other):
+        if type(other) == int:
+            return abs(self.semitones) < abs(other)
+        elif type(other) == Interval:
+            return abs(self.semitones) < abs(other.semitones)
+
+    def __gt__(self, other):
+        if type(other) == int:
+            return abs(self.semitones) > abs(other)
+        elif type(other) == Interval:
+            return abs(self.semitones) > abs(other.semitones)
+
+    def __eq__(self, other):
+        if type(other) == int:
+            return abs(self.semitones) == abs(other)
+        elif type(other) == Interval:
+            return abs(self.semitones) == abs(other.semitones)
 
     def get_value(self):
         return (INTERVALS.index(self.interval)+1) * self.direction
@@ -48,7 +68,8 @@ def generate_exercise():
         ni = random.choice(activated_intervals)
         if intervals:
             adjacent, repeated = intervals[-1] == ni, ni in intervals
-            allowing_repetitions = OPTIONS['ALLOW_REPETITIONS'].get() == 1
+            allowing_repetitions = (OPTIONS['ALLOW_REPETITIONS'].get() == 1) or \
+                (int(OPTIONS['EXERCISE_LENGTH'].get()) > 12)
             while adjacent or (not allowing_repetitions and repeated):
                 ni = random.choice(activated_intervals)
                 adjacent, repeated = intervals[-1] == ni, ni in intervals
@@ -156,8 +177,21 @@ def draw_exercise(exercise, canvas):
         nx, ny = cx + dx, interval.get_dy()
         lx, cx = cx, nx + dx
         txtangle = degrees(acos(dx/hypot(dx, ny))) * (ny/abs(ny))
+        y = -ny//2
+        bound = 0
+        ex_len = int(OPTIONS['EXERCISE_LENGTH'].get())
+        if ex_len in DISPLAY_BOUNDARIES.keys():
+            bound = DISPLAY_BOUNDARIES[ex_len]
+        else:
+            for n in sorted(DISPLAY_BOUNDARIES.keys()):
+                if ex_len > n:
+                    bound = DISPLAY_BOUNDARIES[n]
+        if interval < bound:
+            txtangle = 0
+            y = -min(ny*2, 150)
+
         t = canvas.create_text(
-            lx + (dx//2), -ny//2, text=str(interval), angle=txtangle, fill='black')
+            lx + (dx//2), y, text=str(interval), angle=txtangle, fill='black')
         bb = canvas.create_rectangle(canvas.bbox(t), fill='white', width=0)
         canvas.tag_lower(bb, t)
 
@@ -231,6 +265,17 @@ def update_starting_note(_=None):
     HOME_NOTE = f"{OPTIONS['HOME_NOTE_VARIABLE'].get()}5"
 
 
+def update_repetitions(warn=False):
+    global OPTIONS
+    activated = filter(lambda v: v.get() == 1,
+                       OPTIONS['INTERVALS_ACTIVATED'].values())
+    if int(OPTIONS['EXERCISE_LENGTH'].get()) > len(list(activated)):
+        OPTIONS['ALLOW_REPETITIONS'].set(1)
+        if warn:
+            messagebox.showwarning(
+                'Warning', 'Cannot disable allowing repetitions if exercise length is greater than the number of enabled intervals')
+
+
 def settings():
     global settings_popup
     try:
@@ -251,7 +296,7 @@ def settings():
             settings_popup, text="Intervals to test", style="SettingsLabelframe.TLabelframe")
         for idx, (setting, value) in enumerate(OPTIONS['INTERVALS_ACTIVATED'].items()):
             cb = Checkbutton(interval_frame, text=str(Interval(
-                setting, 1)), variable=value, style="SettingsCheckbutton.TCheckbutton")
+                setting, 1)), variable=value, style="SettingsCheckbutton.TCheckbutton", command=update_repetitions)
             cb.grid(row=(idx//2)+1, column=(idx % 2)+1, sticky='nsew')
         interval_frame.pack(fill='both', expand=True,
                             padx=15, pady=15, ipadx=5, ipady=5)
@@ -262,13 +307,13 @@ def settings():
         homenote_om = OptionMenu(
             other_frame, OPTIONS['HOME_NOTE_VARIABLE'], NOTE_NAMES[0], *NOTE_NAMES, command=update_starting_note)
         length_lbl = Label(other_frame, text="Exercise length: ")
-        length_sb = Spinbox(other_frame, from_=3, to=10,
-                            textvariable=OPTIONS['EXERCISE_LENGTH'], state="readonly", width=5)
+        length_sb = Spinbox(other_frame, from_=MIN_EXERSISE_LENGTH, to=MAX_EXERSISE_LENGTH,
+                            textvariable=OPTIONS['EXERCISE_LENGTH'], state="readonly", width=5, command=update_repetitions)
         playbackspeed_lbl = Label(other_frame, text="Playback speed: ")
         playbackspeed_sb = Spinbox(
             other_frame, from_=1, to=3, textvariable=OPTIONS['PLAYBACK_SPEED'], state="readonly", width=5)
-        allowrepetitions_cb = Checkbutton(other_frame, text="Allow repetitions",
-                                          variable=OPTIONS['ALLOW_REPETITIONS'], style="SettingsCheckbutton.TCheckbutton")
+        allowrepetitions_cb = Checkbutton(other_frame, text="Allow repetitions\n(Must be checked if exercise\nlength is greater than 12)",
+                                          variable=OPTIONS['ALLOW_REPETITIONS'], style="SettingsCheckbutton.TCheckbutton", command=partial(update_repetitions, True))
         showguidelines_cb = Checkbutton(other_frame, text="Show semitone guidelines\n(Applied on redraw)",
                                         variable=OPTIONS['SHOW_GUIDELINES'], style="SettingsCheckbutton.TCheckbutton")
         simultaneousplayback_cb = Checkbutton(
@@ -372,7 +417,7 @@ if __name__ == "__main__":
             "TEXTCOLOR": '#333333'
         }
 
-    WIDTH, HEIGHT = (1200, 500)
+    WIDTH, HEIGHT = (1300, 500)
     XPAD = 50
     MAX_INTERVAL = 8
     MAX_DY = HEIGHT // 4
@@ -381,7 +426,7 @@ if __name__ == "__main__":
     HOME_NOTE = "C5"
     TONE_DURATION = 1
 
-    MAX_EXERSISE_LENGTH = 8
+    MAX_EXERSISE_LENGTH = 17
     MIN_EXERSISE_LENGTH = 3
 
     INTERVAL_DESCRIPTORS = {
@@ -405,6 +450,8 @@ if __name__ == "__main__":
         f"{NOTE_NAMES[i%len(NOTE_NAMES)]}{(i//len(NOTE_NAMES))+4}" for i in range((len(NOTE_NAMES)*octaves)+1)]
     FREQUENCY_DICT = dict(
         zip(PITCHES, [int(start_freq*(2**(i/12))) for i in range(len(PITCHES))]))
+
+    DISPLAY_BOUNDARIES = {8: 3, 10: 4, 12: 7}
 
     window, canvas, screen = setup_window()
 
