@@ -30,8 +30,8 @@ MODLIBS=           $(LOCALMODLIBS) $(BASEMODLIBS)
 VERSION=	3.7
 srcdir=		.
 
-abs_srcdir=	/opt/local/var/macports/build/_opt_bblocal_var_buildworker_ports_build_ports_lang_python37/python37/work/Python-3.7.10
-abs_builddir=	/opt/local/var/macports/build/_opt_bblocal_var_buildworker_ports_build_ports_lang_python37/python37/work/Python-3.7.10
+abs_srcdir=	/opt/local/var/macports/build/_opt_bblocal_var_buildworker_ports_build_ports_lang_python37/python37/work/Python-3.7.12
+abs_builddir=	/opt/local/var/macports/build/_opt_bblocal_var_buildworker_ports_build_ports_lang_python37/python37/work/Python-3.7.12
 
 
 CC=		/usr/bin/clang
@@ -81,7 +81,7 @@ MAKESETUP=      $(srcdir)/Modules/makesetup
 OPT=		-DNDEBUG -g -fwrapv -O3 -Wall
 BASECFLAGS=	 -Wno-unused-result -Wsign-compare -Wunreachable-code -fno-common -dynamic
 BASECPPFLAGS=	
-CONFIGURE_CFLAGS=	-pipe -Os -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk 
+CONFIGURE_CFLAGS=	-pipe -I/opt/local/libexec/openssl11/include -Os -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk 
 # CFLAGS_NODIST is used for building the interpreter and stdlib C extensions.
 # Use it when a compiler flag should _not_ be part of the distutils CFLAGS
 # once Python is installed (Issue #21121).
@@ -90,8 +90,8 @@ CONFIGURE_CFLAGS_NODIST= -std=c99 -Wextra -Wno-unused-result -Wno-unused-paramet
 # Use it when a linker flag should _not_ be part of the distutils LDFLAGS
 # once Python is installed (bpo-35257)
 CONFIGURE_LDFLAGS_NODIST=
-CONFIGURE_CPPFLAGS=	-I/opt/local/include -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-CONFIGURE_LDFLAGS=	-L/opt/local/lib -Wl,-headerpad_max_install_names -Wl,-syslibroot,/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk 
+CONFIGURE_CPPFLAGS=	-I/opt/local/libexec/openssl11/include -I/opt/local/include -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+CONFIGURE_LDFLAGS=	-L/opt/local/libexec/openssl11/lib -L/opt/local/lib -Wl,-headerpad_max_install_names -Wl,-syslibroot,/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk 
 # Avoid assigning CFLAGS, LDFLAGS, etc. so users can use them on the
 # command line to append to these values without stomping the pre-set
 # values.
@@ -175,7 +175,7 @@ PYTHONFRAMEWORKINSTALLDIR= /opt/local/Library/Frameworks/Python.framework
 # Deployment target selected during configure, to be checked
 # by distutils. The export statement is needed to ensure that the
 # deployment target is active during build.
-MACOSX_DEPLOYMENT_TARGET=11.2
+MACOSX_DEPLOYMENT_TARGET=12.0
 export MACOSX_DEPLOYMENT_TARGET
 
 # Option to install to strip binaries
@@ -188,15 +188,15 @@ LIPO_32BIT_FLAGS=
 OTHER_LIBTOOL_OPT=
 
 # Environment to run shared python without installed libraries
-RUNSHARED=       DYLD_FRAMEWORK_PATH=/opt/local/var/macports/build/_opt_bblocal_var_buildworker_ports_build_ports_lang_python37/python37/work/Python-3.7.10
+RUNSHARED=       DYLD_FRAMEWORK_PATH=/opt/local/var/macports/build/_opt_bblocal_var_buildworker_ports_build_ports_lang_python37/python37/work/Python-3.7.12
 
 # ensurepip options
 ENSUREPIP=      no
 
 # OpenSSL options for setup.py so sysconfig can pick up AC_SUBST() vars.
-OPENSSL_INCLUDES=
+OPENSSL_INCLUDES=-I/opt/local/libexec/openssl11/include
 OPENSSL_LIBS=-lssl -lcrypto
-OPENSSL_LDFLAGS=-L/opt/local/lib
+OPENSSL_LDFLAGS=-L/opt/local/libexec/openssl11/lib
 
 # Modes for directories, executables and data files created by the
 # install process.  Default to user-only-writable for all file types.
@@ -205,7 +205,7 @@ EXEMODE=	755
 FILEMODE=	644
 
 # configure script arguments
-CONFIG_ARGS=	 '--prefix=/opt/local' '--enable-framework=/opt/local/Library/Frameworks' '--enable-ipv6' '--enable-loadable-sqlite-extensions' '--with-computed-gotos' '--with-ensurepip=no' '--with-system-expat' '--with-system-ffi' 'CC=/usr/bin/clang' 'CFLAGS=-pipe -Os -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk ' 'LDFLAGS=-L/opt/local/lib -Wl,-headerpad_max_install_names -Wl,-syslibroot,/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk ' 'CPPFLAGS=-I/opt/local/include -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk'
+CONFIG_ARGS=	 '--prefix=/opt/local' '--enable-framework=/opt/local/Library/Frameworks' '--enable-ipv6' '--enable-loadable-sqlite-extensions' '--with-computed-gotos' '--with-ensurepip=no' '--with-system-expat' '--with-system-ffi' '--enable-optimizations' 'CC=/usr/bin/clang' 'CFLAGS=-pipe -I/opt/local/libexec/openssl11/include -Os -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk ' 'LDFLAGS=-L/opt/local/libexec/openssl11/lib -L/opt/local/lib -Wl,-headerpad_max_install_names -Wl,-syslibroot,/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk ' 'CPPFLAGS=-I/opt/local/libexec/openssl11/include -I/opt/local/include -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk' 'PKG_CONFIG_PATH=/opt/local/libexec/openssl11/lib/pkgconfig'
 
 
 # Subdirectories with code
@@ -249,8 +249,8 @@ PYTHON_FOR_REGEN=python3
 UPDATE_FILE=python3 $(srcdir)/Tools/scripts/update_file.py
 PYTHON_FOR_BUILD=./$(BUILDPYTHON) -E
 _PYTHON_HOST_PLATFORM=
-BUILD_GNU_TYPE=	x86_64-apple-darwin20.3.0
-HOST_GNU_TYPE=	x86_64-apple-darwin20.3.0
+BUILD_GNU_TYPE=	x86_64-apple-darwin21.1.0
+HOST_GNU_TYPE=	x86_64-apple-darwin21.1.0
 
 # Tcl and Tk config info from --with-tcltk-includes and -libs options
 TCLTK_INCLUDES=	
@@ -302,7 +302,7 @@ IO_OBJS=	\
 
 ##########################################################################
 
-LIBFFI_INCLUDEDIR=	
+LIBFFI_INCLUDEDIR=	/opt/local/include
 
 ##########################################################################
 # Parser
@@ -473,7 +473,7 @@ DTRACE_DEPS = \
 # Rules
 
 # Default target
-all:		build_all
+all:		profile-opt
 build_all:	check-clean-src $(BUILDPYTHON) oldsharedmods sharedmods gdbhooks \
 		Programs/_testembed python-config
 
@@ -519,7 +519,7 @@ profile-run-stamp:
 	touch $@
 
 build_all_generate_profile:
-	$(MAKE) all CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_GEN_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST) $(PGO_PROF_GEN_FLAG)" LIBS="$(LIBS)"
+	$(MAKE) build_all CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_GEN_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST) $(PGO_PROF_GEN_FLAG)" LIBS="$(LIBS)"
 
 run_profile_task:
 	@ # FIXME: can't run for a cross build
@@ -533,14 +533,14 @@ build_all_merge_profile:
 profile-opt: profile-run-stamp
 	@echo "Rebuilding with profile guided optimizations:"
 	-rm -f profile-clean-stamp
-	$(MAKE) all CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_USE_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST)"
+	$(MAKE) build_all CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_USE_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST)"
 
 # Compile and run with gcov
 .PHONY=coverage coverage-lcov coverage-report
 coverage:
 	@echo "Building with support for coverage checking:"
 	$(MAKE) clean profile-removal
-	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -pg -fprofile-arcs -ftest-coverage" LIBS="$(LIBS) -lgcov"
+	$(MAKE) build_all CFLAGS="$(CFLAGS) -O0 -pg -fprofile-arcs -ftest-coverage" LIBS="$(LIBS) -lgcov"
 
 coverage-lcov:
 	@echo "Creating Coverage HTML report with LCOV:"
@@ -1081,7 +1081,7 @@ cleantest: build_all
 
 # Run a basic set of regression tests.
 # This excludes some tests that are particularly resource-intensive.
-test:		all platform
+test:		build_all platform
 		$(TESTRUNNER) $(TESTOPTS)
 
 # Run the full test suite twice - once without .pyc files, and once with.
@@ -1091,7 +1091,7 @@ test:		all platform
 # the bytecode read from a .pyc file had the bug, sometimes the directly
 # generated bytecode.  This is sometimes a very shy bug needing a lot of
 # sample data.
-testall:	all platform
+testall:	build_all platform
 		-find $(srcdir)/Lib -name '*.py[co]' -print | xargs rm -f
 		$(TESTPYTHON) -E $(srcdir)/Lib/compileall.py
 		-find $(srcdir)/Lib -name '*.py[co]' -print | xargs rm -f
@@ -1100,7 +1100,7 @@ testall:	all platform
 
 # Run the test suite for both architectures in a Universal build on OSX.
 # Must be run on an Intel box.
-testuniversal:	all platform
+testuniversal:	build_all platform
 		@if [ `arch` != 'i386' ]; then \
 			echo "This can only be used on OSX/i386" ;\
 			exit 1 ;\
@@ -1126,7 +1126,7 @@ QUICKTESTOPTS=	$(TESTOPTS) -x test_subprocess test_io test_lib2to3 \
 		test_multiprocessing_forkserver \
 		test_mailbox test_socket test_poll \
 		test_select test_zipfile test_concurrent_futures
-quicktest:	all platform
+quicktest:	build_all platform
 		$(TESTRUNNER) $(QUICKTESTOPTS)
 
 # SSL tests
@@ -1497,7 +1497,7 @@ LIBPL=		$(prefix)/lib/python3.7/config-$(VERSION)$(ABIFLAGS)-darwin
 # pkgconfig directory
 LIBPC=		$(LIBDIR)/pkgconfig
 
-libainstall:	all python-config
+libainstall:	build_all python-config
 	@for i in $(LIBDIR) $(LIBPL) $(LIBPC); \
 	do \
 		if test ! -d $(DESTDIR)$$i; then \
@@ -1763,7 +1763,7 @@ distclean: clobber
 				     -exec rm -f {} ';'
 
 # Check that all symbols exported by libpython start with "Py" or "_Py"
-smelly: all
+smelly: build_all
 	$(RUNSHARED) ./$(BUILDPYTHON) Tools/scripts/smelly.py
 
 # Find files with funny names
@@ -1798,7 +1798,7 @@ funny:
 		-o -print
 
 # Perform some verification checks on any modified files.
-patchcheck: all
+patchcheck: build_all
 	$(RUNSHARED) ./$(BUILDPYTHON) $(srcdir)/Tools/scripts/patchcheck.py
 
 # Dependencies

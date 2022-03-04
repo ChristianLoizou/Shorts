@@ -726,6 +726,9 @@
 /* Define if you have the 'prlimit' functions. */
 /* #undef HAVE_PRLIMIT */
 
+/* Define if you have the '_dyld_shared_cache_contains_path' function. */
+#define HAVE_DYLD_SHARED_CACHE_CONTAINS_PATH 1
+
 /* Define to 1 if you have the <process.h> header file. */
 /* #undef HAVE_PROCESS_H */
 
@@ -796,7 +799,7 @@
 #define HAVE_RL_COMPLETION_MATCHES 1
 
 /* Define if you have rl_completion_suppress_append */
-/* #undef HAVE_RL_COMPLETION_SUPPRESS_APPEND */
+#define HAVE_RL_COMPLETION_SUPPRESS_APPEND 1
 
 /* Define if you have readline 4.0 */
 #define HAVE_RL_PRE_INPUT_HOOK 1
