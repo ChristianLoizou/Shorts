@@ -72,7 +72,7 @@ elif platform == 'darwin':
             if line.startswith('DATA_FILES = '):
                 line = line.replace("[]", repr(DEPENDENCIES))
             setup_file.write(line)
-    system('python3.7 setup.py py2app --packages simpleaudio')
+    system('python3 setup.py py2app --packages simpleaudio')
     sleep(.5)
     system('mkdir latest-darwin')
     system(f'mkdir apps{sep}v{curr_version}')
@@ -84,5 +84,8 @@ elif platform == 'darwin':
     system(
         f'cp -r latest-darwin{sep}latest.dmg apps{sep}v{curr_version}{sep}v{curr_version}.dmg')
     for directory in ['dist', 'build']:
-        rmtree(directory)
+        try:
+            rmtree(directory)
+        except FileNotFoundError:
+            pass
     remove('setup.py')

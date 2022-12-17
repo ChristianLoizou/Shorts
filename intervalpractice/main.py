@@ -70,7 +70,7 @@ def generate_exercise():
             adjacent, repeated = intervals[-1] == ni, ni in intervals
             allowing_repetitions = (OPTIONS['ALLOW_REPETITIONS'].get() == 1) or \
                 (int(OPTIONS['EXERCISE_LENGTH'].get()) > 12)
-            while adjacent or (not allowing_repetitions and repeated):
+            while (adjacent and len(activated_intervals) > 1) or (not allowing_repetitions and repeated):
                 ni = random.choice(activated_intervals)
                 adjacent, repeated = intervals[-1] == ni, ni in intervals
                 allowing_repetitions = OPTIONS['ALLOW_REPETITIONS'].get() == 1
@@ -391,7 +391,7 @@ def mousePressed(event):
 
 if __name__ == "__main__":
 
-    __version__ = "v1.6.6"
+    __version__ = "v1.6.7"
 
     WHATS_NEW = {
         'Added this \"What\'s new?\" section': "This section will contain all the updates from the current version",
