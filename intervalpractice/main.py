@@ -344,7 +344,7 @@ def whats_new():
         whats_new_popup.focus_force()
     except:
         whats_new_popup = Toplevel()
-        whats_new_popup.title("Settings")
+        whats_new_popup.title("What's new")
         whats_new_popup.transient(window)
         whats_new_popup.resizable(False, False)
 
