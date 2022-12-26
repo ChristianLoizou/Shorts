@@ -33,4 +33,5 @@ Eg. If you have intalled *LilyPond version 2.25.0* and put the extracted folder 
 
 
 ### Known Bugs / Improvements
-* Quality of PNG generated will be improved
+* Quality of PNG generated must be improved
+* Some chords don't have correct amount of notes
