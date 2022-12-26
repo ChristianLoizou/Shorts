@@ -32,7 +32,7 @@ NOTE: [Python version 3.7+](https://python.org/downloads/) is required to compil
 
  If you plan on leaving out *application_update.py*, check first that the version you are using is capable of running without it. 12toneapp v1.6.1, intervalpractice v1.5 and parallelchecker v1.4.2 are the earliest versions that allow for execution without checking for updates. Other applications will have this feature for all versions.
 
-Please also note that depending on your PATH environment variable / operating system, you may need to swap `python37` for `python3.7`. For me, `python37` works on Windows and `python3.7` works for Darwin (MacOS).  
+Please also note that depending on your PATH environment variable / operating system, you may need to swap `python37` for `python3.7` or simply just `python`. For me, `python37` works on Windows and `python3.7` works for Darwin (MacOS).  
 
 ## Other
 The script */compile_lacking.py* goes through all project files and checks that each version has been compiled for all supported platforms. If not, it will compile all missing versions it can based on the platform the script is run on. 
