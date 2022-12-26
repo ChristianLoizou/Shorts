@@ -278,11 +278,22 @@ def setup_window():
 
 
 if __name__ == "__main__":
-    __version__ = "v0.0.1"
+    __version__ = "v0.1.0"
 
     WHATS_NEW = {
         'Added this "What\'s new?" section': "This section will contain all the updates from the current version",
     }
+
+    try:
+        from application_update import execute_update
+
+        if execute_update(
+            "chordreadingpractice", __version__, os.path.basename(__file__)
+        ):
+            exit()
+
+    except ModuleNotFoundError:
+        pass
 
     WIDTH, HEIGHT = (1300, 500)
     PADX, PADY = 10, 20
