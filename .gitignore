@@ -7,4 +7,5 @@
 **/test
 **/output.mid
 chordreadingpractice/test.png
+chordreadingpractice/*/test.png
 */.spec
