@@ -26,6 +26,6 @@ If you are on Windows, you must install the [latest stable version](https://lily
 Eg. If you have intalled *LilyPond version 2.25.0* and put the extracted folder in <code>C:\Users\USERNAME\Documents\\</code>, you will have to add <code>C:\Users\USERNAME\Documents\lilypond-2.25.0\bin\\</code> to your **PATH**.
 
 
-## Known Bugs
+### Known Bugs
 * Settings popup stops working after changing application theme on Windows
 * 
