@@ -3,12 +3,13 @@
 An application to help you practise sight-reading your chords. Chords are generated (up to four notes per chord), and the user should try to play them in sequence. 
 
 The Python file of the latest release is *'/main.py'.* 
-The Windows executable of the latest release is *'/latest.exe'*.
-The Darwin (MacOS) application of the latest release is *'/latest-darwin/latest.dmg'*.
+The Windows executable of the latest release is *'/latest_exe/'*. [^1]
+The Darwin (MacOS) application of the latest release is *'/latest-darwin/latest.dmg'*. [^2]
 For all releases please see 'exes', 'apps' or 'pys' folders.
 
+[^1]:*Note for Windows users: This application requires all the data files located in* <code>latest_exe</code>*. The executable cannot be run unless these files are located in the same folder. The **entire** <code>latest_exe</code> folder must be downloaded for this program to work correctly. You **can** make a shortcut to the executable outside the folder.*
 
-<u>Note: Darwin application is currently not available</u>
+[^2]:<u>Note: Darwin application is currently not available</u>
 
 
 ### Setup
