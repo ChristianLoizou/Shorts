@@ -108,12 +108,7 @@ class IntSpinBox(ctk.CTkFrame):
 
 
 def setAppearance(new_appearance):
-    if new_appearance == "Light":
-        ctk.set_appearance_mode("light")
-    elif new_appearance == "Dark":
-        ctk.set_appearance_mode("dark")
-    elif new_appearance == "System":
-        ctk.set_appearance_mode("system")
+    ctk.set_appearance_mode(new_appearance.lower())
 
 
 def settings():
