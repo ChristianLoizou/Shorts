@@ -232,15 +232,18 @@ def generateNotationAsLilyPondString(chords):
     for chord in enumerate(chords):
         nc = NoteContainer(chord[1])
         b.place_notes(nc, dur)
-    notation_string = formatNotationString(lilypond.from_Bar(b), len(chords))
+    notation_string = formatNotationString(lilypond.from_Bar(b), len(chords), dur)
     print(notation_string)
     return notation_string
 
 
-def formatNotationString(notation_string, num_chords):
+def formatNotationString(notation_string, num_chords, dur):
     indent = 60 - (num_chords * 5)
     return (
-        notation_string
+        notation_string.replace(
+            f"\\time {num_chords}/{dur} ",
+            f"\\time {num_chords}/{dur} \hide Staff.TimeSignature",
+        )
         + f"""\layout {{ 
             indent = #{indent} 
             ragged-right = ##t 
