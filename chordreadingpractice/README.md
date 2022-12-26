@@ -29,7 +29,7 @@ If you are on Linux / MacOS, I recommend using [HomeBrew](https://brew.sh). The 
 For other download options, see [this page](https://lilypond.org/download.html).
 
 If you are on Windows, you must install the [latest stable version](https://lilypond.org/download.html) of LilyPond, extract the *.zip* to somewhere safe on your machine, (ie. somewhere you won't accidentally move / delete it), then add the complete path to the `/bin` folder to your path [like this](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/). 
-Eg. If you have intalled *LilyPond version 2.25.0* and put the extracted folder in `C:\Users\USERNAME\Documents\\`, you will have to add `C:\Users\USERNAME\Documents\lilypond-2.25.0\bin\\` to your **PATH**.
+Eg. If you have intalled *LilyPond version 2.25.0* and put the extracted folder in `C:\Users\USERNAME\Documents\`, you will have to add `C:\Users\USERNAME\Documents\lilypond-2.25.0\bin\` to your **PATH**.
 
 
 ### Known Bugs / Improvements
