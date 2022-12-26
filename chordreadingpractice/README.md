@@ -24,3 +24,8 @@ For other download options, see [this page](https://lilypond.org/download.html).
 
 If you are on Windows, you must install the [latest stable version](https://lilypond.org/download.html) of LilyPond, extract the *.zip* to somewhere safe on your machine, (ie. somewhere you won't accidentally move / delete it), then add the complete path to the <code>/bin</code> folder to your path [like this](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/). 
 Eg. If you have intalled *LilyPond version 2.25.0* and put the extracted folder in <code>C:\Users\USERNAME\Documents\\</code>, you will have to add <code>C:\Users\USERNAME\Documents\lilypond-2.25.0\bin\\</code> to your **PATH**.
+
+
+## Known Bugs
+* Settings popup stops working after changing application theme on Windows
+* 
