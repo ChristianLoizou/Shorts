@@ -40,6 +40,8 @@ for req in ["pys"]:
 if platform == "win32":
     if "exes" not in listdir():
         system(f"mkdir exes")
+    if "asset_backups" not in listdir():
+        system(f"mkdir asset_backups")
     try:
         for file in listdir("assets"):
             copyf(f"assets{sep}{file}", f"asset_backups{sep}v{curr_version}{sep}{file}")
