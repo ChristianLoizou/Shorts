@@ -1,3 +1,4 @@
+from distutils.dir_util import copy_tree
 from os import chdir, listdir, remove, sep, system
 from shutil import copyfile as copyf
 from shutil import rmtree
@@ -42,6 +43,8 @@ if platform == "win32":
         system(f"mkdir exes")
     if "asset_backups" not in listdir():
         system(f"mkdir asset_backups")
+    if "latest_exe" not in listdir():
+        system(f"mkdir latest_exe")
     try:
         for file in listdir("assets"):
             copyf(f"assets{sep}{file}", f"asset_backups{sep}v{curr_version}{sep}{file}")
@@ -57,12 +60,14 @@ if platform == "win32":
     copyf("main.py", f"pys{sep}v{curr_version}.py")
     if "latest.py" in listdir():
         copyf("latest.exe", f"exes{sep}v{last_version}.exe")
-    system("pyinstaller --onefile -w --icon=assets/icon.ico main.py")
-    copyf(f"dist{sep}main.exe", "latest.exe")
-    copyf("latest.exe", f"exes{sep}v{curr_version}.exe")
+    system(
+        'pyinstaller --onedir --windowed --name "latest" --add-data "C:\\Users\\caloi\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\customtkinter;customtkinter/" main.py'
+    )
+    copy_tree(f"dist{sep}latest", "latest_exe")
+    copy_tree("latest_exe", f"exes{sep}v{curr_version}")
     for directory in ["dist", "build"]:
         rmtree(directory)
-    remove("main.spec")
+    remove("latest.spec")
 elif platform == "darwin":
     if "apps" not in listdir():
         system(f"mkdir apps")
