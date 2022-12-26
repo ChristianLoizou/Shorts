@@ -221,24 +221,38 @@ def generateAndDisplayExercise():
 
 def loadFormattedImage():
     img = Image.open("test.png")
-    img = img.crop((50, 20, img.size[0] * 0.75, 120))
-    # img = img.resize(WIDTH, HEIGHT)
+    img = img.crop((50, 20, img.size[0] * 0.8, 120))
     return ctk.CTkImage(light_image=img, size=(WIDTH - (PADX * 2), HEIGHT - (PADY * 5)))
 
 
 def generateNotationAsLilyPondString(chords):
     dur = 4
-    b = Bar("C", (len(chords), 2))
+    b = Bar("C", (len(chords), dur))
     for chord in enumerate(chords):
         nc = NoteContainer(chord[1])
         b.place_notes(nc, dur)
-        # b.place_rest(dur)
-    notation_string = lilypond.from_Bar(b)
+    notation_string = formatNotationString(lilypond.from_Bar(b), len(chords))
+    print(notation_string)
     return notation_string
 
 
-def setup_window():
+def formatNotationString(notation_string, num_chords):
+    indent = 60 - (num_chords * 5)
+    return (
+        notation_string
+        + f"""\layout {{ 
+            indent = #{indent} 
+            ragged-right = ##t 
+            \context {{ 
+                \Score 
+                \override SpacingSpanner.base-shortest-duration = #(ly:make-moment 1/32)
+                \override SpacingSpanner.common-shortest-duration = #(ly:make-moment 1/32)
+            }}
+        }}"""
+    )
 
+
+def setup_window():
     window = ctk.CTk()
 
     window.geometry(f"{WIDTH}x{HEIGHT}")
@@ -278,10 +292,10 @@ def setup_window():
 
 
 if __name__ == "__main__":
-    __version__ = "v0.1.0"
+    __version__ = "v0.1.5"
 
     WHATS_NEW = {
-        'Added this "What\'s new?" section': "This section will contain all the updates from the current version",
+        "Fixed spacing issues": "Added more spacing between notes for better readability",
     }
 
     try:
@@ -295,7 +309,7 @@ if __name__ == "__main__":
     except ModuleNotFoundError:
         pass
 
-    WIDTH, HEIGHT = (1300, 500)
+    WIDTH, HEIGHT = (1400, 500)
     PADX, PADY = 10, 20
     BTN_FRAME_HEIGHT = 40
 
