@@ -107,8 +107,13 @@ class IntSpinBox(ctk.CTkFrame):
         self.entry.insert(0, str(int(value)))
 
 
-def setAppearance(new_appearance):
+def setAppearance(new_appearance, reboot_settings=True):
+    OPTIONS["APPLICATION_THEME"].set(new_appearance)
     ctk.set_appearance_mode(new_appearance.lower())
+    if reboot_settings:
+        global settings_popup
+        settings_popup.destroy()
+        settings()
 
 
 def settings():
@@ -138,9 +143,8 @@ def settings():
         theme_lbl = ctk.CTkLabel(settings_popup, text="Application theme: ")
         theme_om = ctk.CTkOptionMenu(
             settings_popup,
-            values=["System", "Light", "Dark"]
-            if platform == "darwin"
-            else ["Light", "Dark"],
+            values=AVAILABLE_THEMES,
+            variable=OPTIONS["APPLICATION_THEME"],
             command=setAppearance,
         )
 
@@ -314,7 +318,12 @@ if __name__ == "__main__":
     PADX, PADY = 10, 20
     BTN_FRAME_HEIGHT = 40
 
-    ctk.set_appearance_mode("System")
+    if platform == "darwin":
+        AVAILABLE_THEMES = ["System", "Light", "Dark"]
+    else:
+        AVAILABLE_THEMES = ["Light", "Dark"]
+
+    ctk.set_appearance_mode(AVAILABLE_THEMES[0])
     ctk.set_default_color_theme("dark-blue")
 
     imageframe, window = setup_window()
@@ -325,6 +334,7 @@ if __name__ == "__main__":
     OPTIONS = dict(
         EXERCISE_LENGTH=IntVar(value=DEFAULT_EXERCISE_LENGTH),
         NUM_VOICES=StringVar(value="4"),
+        APPLICATION_THEME=StringVar(value=AVAILABLE_THEMES[0]),
     )
 
     window.mainloop()

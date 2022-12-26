@@ -33,5 +33,4 @@ Eg. If you have intalled *LilyPond version 2.25.0* and put the extracted folder 
 
 
 ### Known Bugs / Improvements
-* Settings popup stops working after changing application theme on Windows
 * Quality of PNG generated will be improved
