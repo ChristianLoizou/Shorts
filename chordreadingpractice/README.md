@@ -10,7 +10,7 @@ The Darwin (MacOS) application of the latest release is *'/latest-darwin/latest.
 
 For all releases please see 'exes', 'apps' or 'pys' folders.
 
-[^1]:*Note for Windows users: This application requires all the data files located in* <code>latest_exe</code>*. The executable cannot be run unless these files are located in the same folder. The **entire** <code>latest_exe</code> folder must be downloaded for this program to work correctly. You **can** make a shortcut to the executable outside the folder.*
+[^1]:Note for Windows users: This application requires all the data files located in* <code>latest_exe</code>. The executable cannot be run unless these files are located in the same folder. The **entire** <code>latest_exe</code> folder must be downloaded for this program to work correctly. You **can** make a shortcut to the executable outside the folder.
 
 [^2]:<u>Note: Darwin application is currently not available</u>
 
