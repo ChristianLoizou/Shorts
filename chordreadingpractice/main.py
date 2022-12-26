@@ -209,7 +209,6 @@ def generateAndDisplayExercise():
         chord.rotate(inversion)
         chord = list(chord)
         exercise.append(chord)
-        # print(chord, "\t\t", chord_key, chord_mode.__name__)
     notation_string = generateNotationAsLilyPondString(exercise)
     lilypond.to_png(notation_string, "test.png")
     # TODO: Light vs Dark mode images
@@ -222,7 +221,7 @@ def generateAndDisplayExercise():
 
 def loadFormattedImage():
     img = Image.open("test.png")
-    img = img.crop((50, 20, img.size[0] * 0.8, 120))
+    img = img.crop((50, 40, img.size[0] * 0.8, 120))
     return ctk.CTkImage(light_image=img, size=(WIDTH - (PADX * 2), HEIGHT - (PADY * 5)))
 
 
