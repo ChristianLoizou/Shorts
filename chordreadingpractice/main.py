@@ -3,6 +3,7 @@ import random
 from collections import deque
 from sys import platform
 from tkinter import IntVar, PhotoImage, StringVar
+from tkinter.ttk import Separator
 from typing import Callable, Union
 
 import customtkinter as ctk
@@ -174,15 +175,15 @@ def whatsNew():
             ctk.CTkLabel(
                 parent_frame,
                 text=f"● {head}",
+                font=(None, 18),
             ).pack(pady=(5, 0))
             ctk.CTkLabel(
                 parent_frame,
                 text=f"{descr}",
             ).pack()
             if i < len(WHATS_NEW) - 1:
-                ctk.CTkSeparator(parent_frame, orient="horizontal").pack(
-                    fill="x", pady=(PADX, 0)
-                )
+                sep = Separator(parent_frame, orient="horizontal")
+                sep.pack(fill="x")
         parent_frame.pack(padx=15, pady=15, ipadx=15)
         whats_new_popup.mainloop()
 
@@ -256,7 +257,8 @@ def setup_window():
     window = ctk.CTk()
 
     window.geometry(f"{WIDTH}x{HEIGHT}")
-    window.title("Chord Reading Practice")
+    window.title(f"Chord Reading Practice {__version__}")
+    window.resizable(False, False)
     try:
         window.tk.call(
             "wm", "iconphoto", window._w, PhotoImage(file=f"assets{os.sep}icon.png")
@@ -296,6 +298,7 @@ if __name__ == "__main__":
 
     WHATS_NEW = {
         "Fixed spacing issues": "Added more spacing between notes for better readability",
+        'Improved "What\'s New"': "Enlargened the heading bullet points in this menu",
     }
 
     try:
