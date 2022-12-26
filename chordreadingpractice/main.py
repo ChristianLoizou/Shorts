@@ -297,10 +297,11 @@ def setup_window():
 
 
 if __name__ == "__main__":
-    __version__ = "v0.1.5"
+    __version__ = "v0.1.6"
 
     WHATS_NEW = {
         "Fixed spacing issues": "Added more spacing between notes for better readability",
+        "Hidden time signatures": "Time signatures are now invisible in the generated music (as they are unnecessary)",
         'Improved "What\'s New"': "Enlargened the heading bullet points in this menu",
     }
 
