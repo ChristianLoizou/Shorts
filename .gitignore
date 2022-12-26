@@ -6,6 +6,5 @@
 .DS_Store
 **/test
 **/output.mid
-chordreadingpractice/test.png
-chordreadingpractice/*/test.png
+*/test.png
 */.spec
